@@ -1,0 +1,539 @@
+{
+    "permissions": [
+        {
+            "user_id": "6807a86ebcff1952758703b3",
+            "username": "dule98",
+            "permissions": [
+                "owner",
+                "admin",
+                "emote",
+                "teleport",
+                "print",
+                "say",
+                "walk",
+                "ask",
+                "get_outfit",
+                "set_outfit",
+                "remove_outfit",
+                "get_user_outfit",
+                "allow_to_roam",
+                "allow_to_emote",
+                "follow_user",
+                "tip",
+                null
+            ]
+        },
+        {
+            "user_id": "65901676a7b672e99b9fe220",
+            "username": "NoobTileHolder",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                "admin",
+                null
+            ]
+        },
+        {
+            "user_id": "665dd9dc91e33d5503e1d061",
+            "username": "IM.UG",
+            "permissions": [
+                "emote",
+                "say",
+                "ask"
+            ]
+        },
+        {
+            "user_id": "6684d7232756e6dcd4e250db",
+            "username": "xBailz",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "66ac218bad8633681c1d73bb",
+            "username": "Zoeboee",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "656feb65112dbd93a121d47e",
+            "username": "RAVERN1331",
+            "permissions": [
+                "emote",
+                "say",
+                "ask"
+            ]
+        },
+        {
+            "user_id": "668b418269f49cc5e300b488",
+            "username": "Seidy14",
+            "permissions": [
+                "emote",
+                "say",
+                "ask"
+            ]
+        },
+        {
+            "user_id": "6678c0bbb05c2e82f55b18d6",
+            "username": "Naya2real",
+            "permissions": [
+                "emote",
+                "say",
+                "ask"
+            ]
+        },
+        {
+            "user_id": "65a09af897c89979d38df188",
+            "username": "WahTah",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "6675c2d866cda7b180033ab6",
+            "username": "Bat_Creep",
+            "permissions": [
+                "emote",
+                "say",
+                "ask"
+            ]
+        },
+        {
+            "user_id": "66b0d43180c9352a30d270f4",
+            "username": "FlotsamLeadership",
+            "permissions": [
+                "emote",
+                "say",
+                "ask"
+            ]
+        },
+        {
+            "user_id": "66ad1a41fd12f8640d358773",
+            "username": "SmokeyLaroo",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "6278024846ce7b3ea56012f2",
+            "username": "AnnaAnna23",
+            "permissions": [
+                "emote",
+                "say",
+                "ask"
+            ]
+        },
+        {
+            "user_id": "576f13800ccdc25177e473e3",
+            "username": "MetaverseMello",
+            "permissions": [
+                "emote",
+                "say",
+                "ask"
+            ]
+        },
+        {
+            "user_id": "6640b4b21785a0b215afd56c",
+            "username": "x.Ghosty.x",
+            "permissions": [
+                "emote",
+                "say",
+                "ask"
+            ]
+        },
+        {
+            "user_id": "662fd11ce8dcce86ffc83ba1",
+            "username": "XZT51",
+            "permissions": [
+                "emote",
+                "say",
+                "ask"
+            ]
+        },
+        {
+            "user_id": "64baef2389128d23498d3722",
+            "username": "lee_astro",
+            "permissions": [
+                "emote",
+                "say",
+                "ask"
+            ]
+        },
+        {
+            "user_id": "63ddb728b22bbf2826fdac84",
+            "username": "Babysoftt",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "6550d382582a66e4294d44bd",
+            "username": "___Yongle123__",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "66b208ddb2de0d6d1050d008",
+            "username": "sadlina22",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "6582df59d5256043864ca410",
+            "username": "Ash_ishigh",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "642fcfceffbb7588ce05e8a2",
+            "username": "_lily.__",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "66ad200fb70ffdf90810a43d",
+            "username": "Kayla_cutieee",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "65a640863726183ad6574e36",
+            "username": "alone._.enough",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "61a23a442b0384c5a41cbb55",
+            "username": "solonar",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "66a4d607ce651eabd59fea2c",
+            "username": "LemmingQuicksand",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "60e4d156ade36479457a97de",
+            "username": "Semmey",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null,
+                "walk",
+                "owner"
+            ]
+        },
+        {
+            "user_id": "66943b09f1262eb0ea08b48b",
+            "username": "number1minion",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "659c5dc17978ed23e0b12cf8",
+            "username": "i_am_ELLIE_u_silly",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "64e5df31044eb60942d30480",
+            "username": "sennnny",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "6443db45d86431b1103dc91e",
+            "username": "ermali1020",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "6632538982c25a8f955c763e",
+            "username": "NANA.GHOUL",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "64e7f7d05484c2d308b02424",
+            "username": "shortstuff89",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "669fc7836ac948323f010953",
+            "username": "slay_qeunn",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "664423e7029623a79e09073f",
+            "username": "Okami17",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "620500ccbdcf306e23348572",
+            "username": "gwayar",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "6643b91db0d63bcccc1f3e03",
+            "username": "misfitmamma",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "659a006f35e0b5969471f232",
+            "username": "NoobBuilder001",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "65a2ae6195dba505f6eb1ac4",
+            "username": "NoobBuilder002",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "66ef660dae7b883bc2627ed2",
+            "username": "CatalyticFledged",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "64108e5af0d09efbb390328f",
+            "username": "Oliviarwses",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "671075fe1e071926954b6e48",
+            "username": "sally169",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "67bfd5081c4bec55ac6cc2c9",
+            "username": "Lord_Darkness_",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "62fc4b0649fac6583a70492a",
+            "username": "xLucifer_666x",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "6805cccadb93b9cd395f1651",
+            "username": "Black_gold1602",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "64af995542d819c044a4c014",
+            "username": "Anilireyntd",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "67cec05faf7f0cb68b06e7b1",
+            "username": "TrencherConducting",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "67e4a811a12e4c70515e2d75",
+            "username": "Elanor_leanora",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "672ebd3e303de97327c1c54e",
+            "username": "octoberpossession",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "683a5def6ab6a2bd2f03097c",
+            "username": "kaju.0_0.1",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "63274a755dfb3586939d5b11",
+            "username": "kissae0.0",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "63e2d3e2f20b448e677dbf5f",
+            "username": "Kat_Van_D",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        },
+        {
+            "user_id": "66c2b43a47bf6c74c923be7f",
+            "username": "FeralKittenBoo",
+            "permissions": [
+                "emote",
+                "say",
+                "ask",
+                null
+            ]
+        }
+    ]
+}
