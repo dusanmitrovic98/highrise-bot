@@ -7,13 +7,20 @@ cd /d %~dp0
 REM Remove shutdown.flag on first run
 if exist shutdown.flag del shutdown.flag
 
+set LOGFILE=bot_monitor.log
+
 :loop
 if exist shutdown.flag (
-    echo Shutdown flag detected. Exiting monitor.
+    echo [%date% %time%] Shutdown flag detected. Exiting monitor. >> %LOGFILE%
     exit /b 0
 )
-echo Starting bot...
+echo [%date% %time%] Starting bot... >> %LOGFILE%
 call python main.py
+if %errorlevel% neq 0 (
+    echo [%date% %time%] Bot exited with error code %errorlevel%. Restarting... >> %LOGFILE%
+) else (
+    echo [%date% %time%] Bot exited normally. Restarting... >> %LOGFILE%
+)
 REM Wait a bit before restart in case of crash
 ping -n 6 127.0.0.1 > nul
 
