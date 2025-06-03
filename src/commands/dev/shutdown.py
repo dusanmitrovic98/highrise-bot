@@ -1,10 +1,11 @@
 from pathlib import Path
 from highrise import User
 import os
+from src.commands.command_base import CommandBase
 
-class Command:
+class Command(CommandBase):
     def __init__(self, bot):
-        self.bot = bot
+        super().__init__(bot)
         self.name = "shutdown"
         self.description = "Shut down the bot (admin only)."
         self.cooldown = 0

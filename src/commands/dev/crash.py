@@ -1,11 +1,10 @@
+from src.commands.command_base import CommandBase
 import os
-
-from pathlib import Path
 from highrise import User
 
-class Command:
+class Command(CommandBase):
     def __init__(self, bot):
-        self.bot = bot
+        super().__init__(bot)
         self.name = "crash"
         self.description = "Force the bot to crash for testing restart logic."
         self.cooldown = 0

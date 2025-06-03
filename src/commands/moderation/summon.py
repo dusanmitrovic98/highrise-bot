@@ -1,10 +1,11 @@
 from highrise import User, Position
 from config.config import config, messages
+from src.commands.command_base import CommandBase
 
 
-class Command:
+class Command(CommandBase):
     def __init__(self, bot):
-        self.bot = bot
+        super().__init__(bot)
         self.name = "summon"
         self.description = "Teleport a player to your position"
         self.aliases = ['tptome']

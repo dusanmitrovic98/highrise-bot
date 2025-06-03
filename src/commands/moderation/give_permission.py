@@ -5,6 +5,7 @@ from src.utility.utility import (
     get_user, get_user_id, load_permissions, save_permissions,
     user_exists, username_exists
 )
+from src.commands.command_base import CommandBase
 
 COMMAND_NAME = "give_permission"
 COMMAND_DESCRIPTION = "Give a permission to a user"
@@ -15,7 +16,7 @@ USER_NOT_FOUND_MESSAGE = "User {username} not found."
 PERMISSION_GRANTED_MESSAGE = "Permission {permission} granted to {username}."
 PERMISSION_PATTERN = re.compile(rf"{config.prefix}give_permission @(\w+) (\w+)")
 
-class Command:
+class Command(CommandBase):
     """
     Command to give a permission to a user.
     """
@@ -23,7 +24,7 @@ class Command:
         """
         Initialize the give_permission command with the bot instance.
         """
-        self.bot = bot
+        super().__init__(bot)
         self.name = COMMAND_NAME
         self.description = COMMAND_DESCRIPTION
         self.aliases = COMMAND_ALIASES

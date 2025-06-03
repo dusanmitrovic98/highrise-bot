@@ -1,10 +1,11 @@
 from highrise import User, Position, AnchorPosition
 from config.config import config, messages, permissions
+from src.commands.command_base import CommandBase
 
 
-class Command:
+class Command(CommandBase):
     def __init__(self, bot):
-        self.bot = bot
+        super().__init__(bot)
         self.name = "position"
         self.description = "Display someone's position in the room."
         self.permissions = ['admin', 'moderator']
@@ -13,7 +14,7 @@ class Command:
 
     async def execute(self, user: User, args: list, message: str):
         if user.id not in permissions.moderators:
-            return await self.bot.highrise.send_whisper(user.id, f"This command is moderator only command")
+            return await self.bot.highrise.send_whisper(user.id, "This command is moderator only command")
         else:
             prefix = config.prefix
             # Get the room users

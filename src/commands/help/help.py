@@ -1,9 +1,10 @@
 from highrise import User
+from src.commands.command_base import CommandBase
 
 
-class Command:
+class Command(CommandBase):
     def __init__(self, bot):
-        self.bot = bot
+        super().__init__(bot)
         self.name = 'help'
         self.description = "Your command description"
         self.aliases = ['info', 'hmm']  # you can add as much aliases as u want

@@ -1,5 +1,6 @@
 from highrise import User, Position
 from config.config import messages, permissions
+from src.commands.command_base import CommandBase
 
 COMMAND_NAME = "come"
 COMMAND_DESCRIPTION = "Teleport a player to a specific position"
@@ -9,15 +10,12 @@ OWNER_ONLY_MESSAGE = "This command is owner only command"
 INVALID_POSITION_MESSAGE = "Invalid position."
 COMING_MESSAGE = "@{username} I'm coming .."
 
-class Command:
+class Command(CommandBase):
     """
     Command to teleport the bot to a player's position.
     """
     def __init__(self, bot):
-        """
-        Initialize the come command with the bot instance.
-        """
-        self.bot = bot
+        super().__init__(bot)
         self.name = COMMAND_NAME
         self.description = COMMAND_DESCRIPTION
         self.aliases = COMMAND_ALIASES
