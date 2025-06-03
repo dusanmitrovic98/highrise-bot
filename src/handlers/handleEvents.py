@@ -1,7 +1,6 @@
 import logging
 from highrise.models import User, SessionMetadata, CurrencyItem, Item, Reaction, AnchorPosition, Position
 from src.events import join, leave, emote, whisper, start, chat, tips, react, movement
-from src.commands.moderation.grant_permission import set_permission_to_user
 
 async def handle_start(bot, session_metadata: SessionMetadata) -> None:
     try:
@@ -12,7 +11,6 @@ async def handle_start(bot, session_metadata: SessionMetadata) -> None:
 
 async def handle_join(bot, user: User) -> None:
     try:
-        set_permission_to_user(user, None)
         await join.on_join(bot, user)
     except Exception as e:
         logging.error(f"An Error Occurred in handle_join: {e}")
