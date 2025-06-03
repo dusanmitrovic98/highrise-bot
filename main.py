@@ -1,15 +1,35 @@
-from highrise import BaseBot
-from highrise import __main__
-from highrise.models import AnchorPosition, CurrencyItem, Item, Position, Reaction, SessionMetadata, User
-from src.handlers.handleEvents import handle_chat, handle_join, handle_leave, handle_start, handle_whisper, handle_emote, handle_tips, handle_reactions, handle_movements
-from src.handlers.handleCommands import CommandHandler
-from asyncio import run as arun
-from config.config import authorization
-from dotenv import load_dotenv
+import os
+import time
 from collections import namedtuple
 from pathlib import Path
-import time
-import os
+
+from asyncio import run as arun
+from dotenv import load_dotenv
+
+from highrise import BaseBot
+from highrise import __main__
+from highrise.models import (
+    AnchorPosition,
+    CurrencyItem,
+    Item,
+    Position,
+    Reaction,
+    SessionMetadata,
+    User,
+)
+
+from src.handlers.handleCommands import CommandHandler
+from src.handlers.handleEvents import (
+    handle_chat,
+    handle_emote,
+    handle_join,
+    handle_leave,
+    handle_movements,
+    handle_reactions,
+    handle_start,
+    handle_tips,
+    handle_whisper,
+)
 
 
 BotDefinition = namedtuple('BotDefinition', ['bot', 'room_id', 'api_token'])

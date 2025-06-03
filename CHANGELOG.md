@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated permission system integration: `get_user_permissions` in `handleCommands.py` now supports roles and extra permissions from `permissions.json` and aggregates permissions accordingly.
 - All core commands now use the new roles-based permission system from permissions.json. Deprecated static permissions in `config.py`.
+- Refactored config system: config, loggers, messages, permissions, and authorization are now exported as dynamic classes backed by config.json, allowing persistent and editable configuration while maintaining backward compatibility with previous attribute access patterns.
 
 ### Fixed
 - Fixed permission checks for owner users: commands now recognize 'owner' role as super admin and allow all actions as intended.

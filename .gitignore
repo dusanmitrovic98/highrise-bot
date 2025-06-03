@@ -10,5 +10,5 @@ instance/
 bot_monitor.log
 bot.log
 
-config/config.py
+config/config.json
 config/permissions.json

@@ -1,0 +1,30 @@
+{
+    "README": "This is a template configuration file. Please copy it to 'config.json' and fill in the required fields. Do not commit 'config.json' to version control it contains sensitive information. Same applies to 'config/permissions.template.json'.",
+    "prefix": "/",
+    "botID": "change-me",
+    "botName": "change-me",
+    "coordinates": {
+        "x": 8.5,
+        "y": 0.6,
+        "z": 20.5,
+        "facing": "FrontRight"
+    },
+    "loggers": {
+        "SessionMetadata": true,
+        "messages": true,
+        "whispers": true,
+        "joins": true,
+        "leave": true,
+        "tips": true,
+        "emotes": false,
+        "reactions": false,
+        "userMovement": false
+    },
+    "messages": {
+        "invalidPosition": "Your position could not be determined.",
+        "invalidPlayer": "{user} is not in the room.",
+        "invalidUser": "User {user} is not found.",
+        "invalidUsage": "Usage: {prefix}{commandName}{args}",
+        "invalidUserFormat": "Invalid user format. Please use '@username'."
+    }
+}
