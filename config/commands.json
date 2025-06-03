@@ -1,22 +1,15 @@
 {
-  "reboot": {
-    "name": "reboot",
-    "description": "Restart the bot process (admin only).",
-    "permissions": ["admin"],
+  "come": {
+    "name": "come",
+    "description": "Teleport the bot to a player's position.",
+    "permissions": ["owner"],
     "aliases": [],
     "cooldown": 0
   },
-  "reload": {
-    "name": "reload",
-    "description": "Reload all commands and plugins (admin/owner only).",
-    "permissions": ["admin", "owner"],
-    "aliases": [],
-    "cooldown": 0
-  },
-  "shutdown": {
-    "name": "shutdown",
-    "description": "Shut down the bot (admin only).",
-    "permissions": ["admin"],
+  "grant_permission": {
+    "name": "grant_permission",
+    "description": "Grant a permission or role to a user.",
+    "permissions": ["owner"] ,
     "aliases": [],
     "cooldown": 0
   },
@@ -24,56 +17,63 @@
     "name": "help",
     "description": "Show help information.",
     "permissions": [],
-    "aliases": ["info", "hmm"],
-    "cooldown": 5
-  },
-  "wallet": {
-    "name": "wallet",
-    "description": "Check the bot's wallet",
-    "permissions": [],
     "aliases": [],
-    "cooldown": 5
+    "cooldown": 0
   },
-  "whoami": {
-    "name": "whoami",
+  "identify": {
+    "name": "identify",
     "description": "Show your user ID, username, and permissions.",
-    "permissions": [],
-    "aliases": ["myrole", "myperms", "permissions"],
-    "cooldown": 3
-  },
-  "come": {
-    "name": "come",
-    "description": "Teleport the bot to a player's position.",
-    "permissions": ["come", "admin", "owner", "*"],
-    "aliases": ["walk"],
-    "cooldown": 5
-  },
-  "grant_permission": {
-    "name": "grant_permission",
-    "description": "Grant a permission or role to a user",
-    "permissions": ["admin", "owner", "*"] ,
+    "permissions": ["owner"],
     "aliases": [],
-    "cooldown": 10
+    "cooldown": 0
   },
   "position": {
     "name": "position",
     "description": "Display someone's position in the room.",
-    "permissions": ["admin", "moderator"],
-    "aliases": ["location", "coords", "coordinates"],
-    "cooldown": 5
+    "permissions": ["owner"],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "reboot": {
+    "name": "reboot",
+    "description": "Restart the bot process.",
+    "permissions": ["owner"],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "reload": {
+    "name": "reload",
+    "description": "Reload all commands and plugins.",
+    "permissions": ["owner"],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "shutdown": {
+    "name": "shutdown",
+    "description": "Shut down the bot.",
+    "permissions": ["owner"],
+    "aliases": [],
+    "cooldown": 0
   },
   "summon": {
     "name": "summon",
-    "description": "Teleport a player to your position",
-    "permissions": ["teleport"],
-    "aliases": ["tptome"],
-    "cooldown": 5
+    "description": "Teleport a player to your position.",
+    "permissions": ["owner"],
+    "aliases": [],
+    "cooldown": 0
   },
   "teleport": {
     "name": "teleport",
-    "description": "Teleport a player to a specific position",
-    "permissions": ["teleport"],
-    "aliases": ["tp"],
-    "cooldown": 5
+    "description": "Teleport a player to a specific position.",
+    "permissions": ["owner"],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "wallet": {
+    "name": "wallet",
+    "description": "Check the bot's wallet.",
+    "permissions": ["owner"],
+    "aliases": [],
+    "cooldown": 0
   }
 }

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added `on_channel` event handler in `src/events/channel.py` to support hidden channel messages and admin/bot-to-bot communication.
+- Enhanced `on_channel` to demonstrate usage: responds to 'admin' tag and handles a secret shutdown command via channel message.
+- Added `before_start` event handler in `src/events/before_start.py` to support pre-startup logic and resource setup for the bot.
+
+### Changed
+- Updated `on_channel` event handler to demonstrate a real-life use case: handling a 'giveaway' tag to silently enter users into a giveaway and notify them via whisper, replacing the previous shutdown example.
+
 ## [0.0.4] - 2025-06-03
 
 ### Added

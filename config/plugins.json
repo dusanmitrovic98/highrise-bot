@@ -1,9 +1,9 @@
 {
   "ask": {
     "name": "ask",
-    "description": "Give the AI the question to answer",
-    "permissions": ["ask"],
-    "aliases": ["speak", "talk"],
-    "cooldown": 10
+    "description": "Give the AI the question to answer.",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
   }
 }
