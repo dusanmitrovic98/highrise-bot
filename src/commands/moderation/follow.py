@@ -183,5 +183,19 @@ class Command(CommandBase):
                         set_section('actions', configsection_to_dict(live_config.actions))
                         await self.bot.highrise.send_whisper(live_follow_action.id, f"@{live_follow_action.name} I am tired..")
                 self.bot._follow_timeout_task = asyncio.create_task(timeout_task())
+        # If timeout is 0, bot will not follow and will say it is tired
+        if (follow_action.timeout == 0 or (isinstance(follow_action.timeout, str) and follow_action.timeout.lower() == '0')):
+            follow_action.enabled = False
+            def configsection_to_dict(obj):
+                if isinstance(obj, dict):
+                    return {k: configsection_to_dict(v) for k, v in obj.items()}
+                elif hasattr(obj, '__dict__'):
+                    return {k: configsection_to_dict(v) for k, v in obj.__dict__.items() if not k.startswith('__') and not callable(v)}
+                else:
+                    return obj
+            from config.config import set_section
+            set_section('actions', configsection_to_dict(config.actions))
+            await self.bot.highrise.send_whisper(user.id, "I am tired.. (timeout=0). I am not following.. Please set a positive timeout to enable following.")
+            return
         # Send feedback to the command issuer
         await self.bot.highrise.send_whisper(user.id, f"Following {target_username} (id: {target_user_id}). Bot will move to their coordinates when they move. [distance={follow_action.distance}, timeout={follow_action.timeout}, enabled={follow_action.enabled}]")

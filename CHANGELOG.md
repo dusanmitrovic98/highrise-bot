@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed permission checks for owner users: commands now recognize 'owner' role as super admin and allow all actions as intended.
 - Fixed permission checks to allow command execution if user has any required permission (not all), ensuring correct access for admin/owner roles.
 - Fixed punctuation set syntax in remove_chars_until_punctuation to prevent syntax errors and improve response trimming.
+- Fixed bot now always respects the follow distance set in config or via command, even if set as a string.
 
 ## [0.0.3] - 2025-06-03
 

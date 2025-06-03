@@ -13,6 +13,11 @@ async def on_move(bot, user: User, destination: Position | AnchorPosition) -> No
     follow_action = getattr(config.actions, "follow_user", None)
     if follow_action and getattr(follow_action, "enabled", False) and getattr(follow_action, "id", None) == user.id:
         distance = getattr(follow_action, "distance", None)
+        if distance is not None:
+            try:
+                distance = float(distance)
+            except Exception:
+                distance = None
         # Get bot's current position
         bot_user = None
         response = await bot.highrise.get_room_users()
@@ -68,4 +73,4 @@ async def on_move(bot, user: User, destination: Position | AnchorPosition) -> No
                 global timeout_task_running
                 timeout_task_running = False
             asyncio.create_task(timeout_task())
-        await bot.highrise.walk_to(destination)
+        await bot.highrise.walk_to(dest)
