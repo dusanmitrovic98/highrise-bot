@@ -106,3 +106,14 @@ class CommandHandler:
                 tb = traceback.format_exc()
                 await self.bot.highrise.send_whisper(user.id, f"An error occurred while executing '{command_name}'. Please check your command usage or try again later.")
                 logging.error(f"Error executing command '{command_name}' for user '{user.username}' (ID: {user.id}) with args {args}: {e}\n{tb}")
+
+# Placeholder for future external logging (e.g., to a database or HTTP endpoint)
+def log_to_external_service(event_type: str, data: dict):
+    """
+    Placeholder for logging command usage or errors to an external service.
+    Implement this function to send logs to a database, analytics service, or HTTP endpoint.
+    Args:
+        event_type (str): The type of event (e.g., 'command_usage', 'command_error').
+        data (dict): The event data to log.
+    """
+    pass

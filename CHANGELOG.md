@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `/whoami` (aliases: `/myrole`, `/myperms`, `/permissions`) command: lets users see their user ID, username, and permissions.
 - Added `/reload` (admin/owner only) command: allows hot-reloading of all commands and plugins at runtime without restarting the bot.
 - Added `/whoami` (aliases: `/myrole`, `/myperms`, `/permissions`) command: lets users see their user ID, username, and permissions.
+- Placeholder function `log_to_external_service(event_type, data)` in `handleCommands.py` for future external logging of command usage and errors (e.g., to a database or HTTP endpoint).
 
 ### Changed
 - Improved error handling and user feedback for failed commands: users now receive more descriptive error messages, including permission and cooldown details.
