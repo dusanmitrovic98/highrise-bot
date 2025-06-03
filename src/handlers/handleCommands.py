@@ -16,17 +16,24 @@ def get_user_permissions(user: User) -> List[str]:
     user_entry = users.get(user.id)
     permissions_set = set()
     if user_entry:
+        is_owner = False
         for role in user_entry.get("roles", []):
             role_perms = roles.get(role, [])
             if "*" in role_perms:
-                # Owner: all permissions
+                # Owner: all permissions (all keys except '*')
                 all_perms = set()
                 for perms in roles.values():
                     all_perms.update(perms)
+                # Also add all role names as permissions (for admin/owner checks)
+                all_perms.update(roles.keys())
                 permissions_set = all_perms
+                is_owner = True
                 break
             permissions_set.update(role_perms)
-        permissions_set.update(user_entry.get("extra_permissions", []))
+        if not is_owner:
+            permissions_set.update(user_entry.get("extra_permissions", []))
+            # Also add role names as permissions for admin/owner checks
+            permissions_set.update(user_entry.get("roles", []))
     return list(permissions_set)
 
 

@@ -1,6 +1,7 @@
 from highrise import User, Position
-from config.config import messages, permissions
+from config.config import messages
 from src.commands.command_base import CommandBase
+from src.handlers.handleCommands import get_user_permissions
 
 COMMAND_NAME = "come"
 COMMAND_DESCRIPTION = "Teleport a player to a specific position"
@@ -22,22 +23,15 @@ class Command(CommandBase):
         self.cooldown = COMMAND_COOLDOWN
 
     async def execute(self, user: User, args: list, message: str):
-        """
-        Execute the come command.
-        
-        :param user: The user who issued the command.
-        :param args: The arguments passed with the command.
-        :param message: The message containing the command.
-        """
-        if not self.is_owner(user.id):
-            await self.bot.highrise.send_whisper(user.id, OWNER_ONLY_MESSAGE)
+        user_permissions = get_user_permissions(user)
+        # Accept if user has 'come', 'admin', 'owner', or any role name as permission
+        if not ("come" in user_permissions or "admin" in user_permissions or "owner" in user_permissions):
+            await self.bot.highrise.send_whisper(user.id, "You do not have permission to use the come command.")
             return
-
         your_pos = await self.get_user_position(user.id)
         if not your_pos:
             await self.bot.highrise.send_whisper(user.id, messages.invalidPosition)
             return
-
         await self.bot.highrise.chat(COMING_MESSAGE.format(username=user.username))
         await self.bot.highrise.walk_to(your_pos)
 
@@ -48,7 +42,8 @@ class Command(CommandBase):
         :param user_id: The ID of the user.
         :return: True if the user is an owner, False otherwise.
         """
-        return user_id in permissions.owners
+        # Deprecated: use get_user_permissions instead
+        return False
 
     async def get_user_position(self, user_id: str) -> Position:
         """
