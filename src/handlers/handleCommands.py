@@ -102,7 +102,8 @@ class CommandHandler:
                 logging.info(f"User '{user.username}' (ID: {user.id}) is attempting command '{command_name}' with args: {args}")
                 if hasattr(command, "permissions"):
                     user_permissions = get_user_permissions(user)
-                    if not all(p in user_permissions for p in command.permissions):
+                    # Allow if user has any required permission
+                    if command.permissions and not any(p in user_permissions for p in command.permissions):
                         await self.bot.highrise.send_whisper(user.id, f"You don't have permissions to use the '{command_name}' command. Required: {', '.join(command.permissions) or 'None'}.")
                         logging.warning(f"Permission denied for user {user.username} on command {command_name}")
                         return

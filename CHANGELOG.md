@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed permission checks for owner users: commands now recognize 'owner' role as super admin and allow all actions as intended.
+- Fixed permission checks to allow command execution if user has any required permission (not all), ensuring correct access for admin/owner roles.
 
 ## [0.0.3] - 2025-06-03
 
