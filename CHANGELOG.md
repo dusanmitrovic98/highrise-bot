@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.4] - 2025-06-03
+
+### Added
+- Defined roles (`owner`, `admin`, `moderator`, `user`, `guest`) and their default permissions in `permissions.json`.
+- Established permissions system allowing users to have roles and custom/extra permissions.
+
+### Changed
+- Updated permission system integration: `get_user_permissions` in `handleCommands.py` now supports roles and extra permissions from `permissions.json` and aggregates permissions accordingly.
+
 ## [0.0.3] - 2025-06-03
 
 ### Added

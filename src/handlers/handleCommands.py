@@ -8,15 +8,26 @@ from highrise import User
 
 
 def get_user_permissions(user: User) -> List[str]:
-    """Retrieve permissions for a given user from the permissions config."""
+    """Retrieve permissions for a given user from the new roles-based permissions config."""
     with open("config/permissions.json", "r") as f:
         data = json.load(f)
-    user_permissions = []
-    for permission in data["permissions"]:
-        if permission["username"] == user.username:
-            user_permissions = permission["permissions"]
-            break
-    return user_permissions
+    users = data.get("users", {})
+    roles = data.get("roles", {})
+    user_entry = users.get(user.id)
+    permissions_set = set()
+    if user_entry:
+        for role in user_entry.get("roles", []):
+            role_perms = roles.get(role, [])
+            if "*" in role_perms:
+                # Owner: all permissions
+                all_perms = set()
+                for perms in roles.values():
+                    all_perms.update(perms)
+                permissions_set = all_perms
+                break
+            permissions_set.update(role_perms)
+        permissions_set.update(user_entry.get("extra_permissions", []))
+    return list(permissions_set)
 
 
 class CommandHandler:
