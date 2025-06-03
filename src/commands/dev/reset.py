@@ -9,7 +9,7 @@ class Command(CommandBase):
         self.description = "Restart the bot process (admin only)."
         self.cooldown = 0
         self.permissions = ["admin"]
-        self.aliases = ["restart"]
+        self.aliases = ["restart", "reboot"]
 
     async def execute(self, user: User, args: list, message: str):
         from config.config import permissions
