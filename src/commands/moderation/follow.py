@@ -198,4 +198,4 @@ class Command(CommandBase):
             await self.bot.highrise.send_whisper(user.id, "I am tired.. (timeout=0). I am not following.. Please set a positive timeout to enable following.")
             return
         # Send feedback to the command issuer
-        await self.bot.highrise.send_whisper(user.id, f"Following {target_username} (id: {target_user_id}). Bot will move to their coordinates when they move. [distance={follow_action.distance}, timeout={follow_action.timeout}, enabled={follow_action.enabled}]")
+        # await self.bot.highrise.send_whisper(user.id, f"Following {target_username} (id: {target_user_id}). Bot will move to their coordinates when they move. [distance={follow_action.distance}, timeout={follow_action.timeout}, enabled={follow_action.enabled}]")
