@@ -33,12 +33,17 @@ def set_section(section: str, value: Dict[str, Any]):
 class _ConfigSection:
     def __init__(self, section: Dict[str, Any]):
         for k, v in section.items():
-            setattr(self, k, v)
+            if isinstance(v, dict):
+                setattr(self, k, _ConfigSection(v))
+            else:
+                setattr(self, k, v)
 
     def __getitem__(self, key):
         return getattr(self, key)
 
     def __setitem__(self, key, value):
+        if isinstance(value, dict):
+            value = _ConfigSection(value)
         setattr(self, key, value)
         # Optionally, persist changes here if needed
 
@@ -46,6 +51,8 @@ class _ConfigSection:
 config = _ConfigSection(_config)
 loggers = _ConfigSection(_config.get('loggers', {}))
 messages = _ConfigSection(_config.get('messages', {}))
+actions = _ConfigSection(_config.get('actions', {}))
+spawn = _ConfigSection(_config.get('spawn', {}))
 
 # Set up logging configuration
 logging.basicConfig(

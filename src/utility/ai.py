@@ -1,4 +1,5 @@
 import json
+from pyexpat.errors import messages
 import requests
 
 from highrise import User
@@ -12,7 +13,7 @@ def chat(prompt):
     data = {
         "prompt": prompt
     }
-    fallback_message_ai = config.fallback_message_ai
+    fallback_message_ai = config.messages['fallback_message_ai']
     try:
         chat_response = fallback_message_ai
         iterations = 0

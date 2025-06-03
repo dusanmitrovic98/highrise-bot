@@ -27,5 +27,21 @@
         "invalidUsage": "Usage: {prefix}{commandName}{args}",
         "invalidUserFormat": "Invalid user format. Please use '@username'.",
         "fallback_message_ai": "Sorry, can you ask me again later? I am kinda SUPER busy lol"
+    },
+    "actions": {
+        "follow_user": {
+            "id": "",
+            "name": "",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "facing": "Front"
+            },
+            "facing": "Front",
+            "distance": 1.0,
+            "timeout": 60,
+            "enabled": false
+        }
     }
 }

@@ -76,10 +76,17 @@
     "aliases": [],
     "cooldown": 0
   },
-   "ask": {
-    "name": "ask",
-    "description": "Give the AI the question to answer.",
-    "permissions": [],
+  "follow": {
+    "name": "follow",
+    "description": "Make the bot follow a player.",
+    "permissions": ["owner"],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "crash": {
+    "name": "crash",
+    "description": "Crash the bot (for testing purposes).",
+    "permissions": ["owner"],
     "aliases": [],
     "cooldown": 0
   }
