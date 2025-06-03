@@ -38,32 +38,37 @@ class CommandHandler:
     def _load_commands_from_dir(self, base_dir, module_prefix, is_plugin=False):
         for root, dirs, files in os.walk(base_dir):
             for file in files:
-                if file.endswith(".py"):
-                    rel_path = os.path.relpath(os.path.join(root, file), base_dir)
-                    command_name = os.path.splitext(os.path.basename(file))[0]
-                    module_path = rel_path.replace(os.sep, ".")[:-3]  # remove .py
-                    command_module = f"{module_prefix}.{module_path}" if module_path else f"{module_prefix}.{command_name}"
-                    spec = importlib.util.spec_from_file_location(
-                        command_module, os.path.join(root, file)
-                    )
-                    module = importlib.util.module_from_spec(spec)
-                    try:
-                        spec.loader.exec_module(module)
-                        command = getattr(module, "Command")(self.bot)
-                        if command_name in self.commands:
-                            del self.commands[command_name]
-                        for alias in getattr(command, "aliases", []):
-                            if alias in self.commands:
-                                del self.commands[alias]
-                        self.commands[command.name] = command
-                        for alias in getattr(command, "aliases", []):
-                            self.commands[alias] = command
-                        if is_plugin:
-                            logging.info(f"Loaded plugin command: {command.name} (aliases: {getattr(command, 'aliases', [])}) from {file}")
-                        else:
-                            logging.info(f"Loaded command: {command.name} (aliases: {getattr(command, 'aliases', [])})")
-                    except Exception as e:
-                        logging.error(f"Failed to load command {command_name}: {e}")
+                if not file.endswith(".py"):
+                    continue
+                if file == "command_base.py":
+                    continue  # Skip abstract base class
+                rel_path = os.path.relpath(os.path.join(root, file), base_dir)
+                command_name = os.path.splitext(os.path.basename(file))[0]
+                module_path = rel_path.replace(os.sep, ".")[:-3]  # remove .py
+                command_module = f"{module_prefix}.{module_path}" if module_path else f"{module_prefix}.{command_name}"
+                spec = importlib.util.spec_from_file_location(
+                    command_module, os.path.join(root, file)
+                )
+                module = importlib.util.module_from_spec(spec)
+                try:
+                    spec.loader.exec_module(module)
+                    if not hasattr(module, "Command"):
+                        continue  # Skip files that do not define a Command class
+                    command = getattr(module, "Command")(self.bot)
+                    if command_name in self.commands:
+                        del self.commands[command_name]
+                    for alias in getattr(command, "aliases", []):
+                        if alias in self.commands:
+                            del self.commands[alias]
+                    self.commands[command.name] = command
+                    for alias in getattr(command, "aliases", []):
+                        self.commands[alias] = command
+                    if is_plugin:
+                        logging.info(f"Loaded plugin command: {command.name} (aliases: {getattr(command, 'aliases', [])}) from {file}")
+                    else:
+                        logging.info(f"Loaded command: {command.name} (aliases: {getattr(command, 'aliases', [])})")
+                except Exception as e:
+                    logging.error(f"Failed to load command {command_name}: {e}")
 
     async def handle_command(self, user: User, message: str):
         """Handle a chat message that starts with the prefix (e.g., /)."""
