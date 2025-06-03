@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.2] - 2025-06-03
+
+### Changed
+- Refactored `CommandHandler` in `handleCommands.py` to add type annotations, improved error handling, and logging for command loading and execution.
+- Improved command registration and permission handling for maintainability and robustness.
+
 ## [0.0.1] - 2025-06-03
 
 ### Added

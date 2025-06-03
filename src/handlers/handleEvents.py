@@ -1,6 +1,6 @@
 from highrise.models import User, SessionMetadata, CurrencyItem, Item, Reaction, AnchorPosition, Position
 from src.events import join, leave, emote, whisper, start, chat, tips, react, movement
-from src.commands.moderation.give_permission import set_permission_to_user
+from src.commands.moderation.grant_permission import set_permission_to_user
 
 async def handle_start(bot, session_metadata: SessionMetadata) -> None:
     try:

@@ -7,22 +7,22 @@ from src.utility.utility import (
 )
 from src.commands.command_base import CommandBase
 
-COMMAND_NAME = "give_permission"
-COMMAND_DESCRIPTION = "Give a permission to a user"
-COMMAND_ALIASES = ['speak', 'talk']
+COMMAND_NAME = "grant_permission"
+COMMAND_DESCRIPTION = "Grant a permission to a user"
+COMMAND_ALIASES = []
 COMMAND_COOLDOWN = 10
-INVALID_COMMAND_MESSAGE = "Invalid command format. Use /give_permission @username permission"
+INVALID_COMMAND_MESSAGE = "Invalid command format. Use /grant_permission @username permission"
 USER_NOT_FOUND_MESSAGE = "User {username} not found."
 PERMISSION_GRANTED_MESSAGE = "Permission {permission} granted to {username}."
-PERMISSION_PATTERN = re.compile(rf"{config.prefix}give_permission @(\w+) (\w+)")
+PERMISSION_PATTERN = re.compile(rf"{config.prefix}grant_permission @(\w+) (\w+)")
 
 class Command(CommandBase):
     """
-    Command to give a permission to a user.
+    Command to grant a permission to a user.
     """
     def __init__(self, bot):
         """
-        Initialize the give_permission command with the bot instance.
+        Initialize the grant_permission command with the bot instance.
         """
         super().__init__(bot)
         self.name = COMMAND_NAME
@@ -32,7 +32,7 @@ class Command(CommandBase):
 
     async def execute(self, user: User, args: list, message: str):
         """
-        Execute the give_permission command.
+        Execute the grant_permission command.
         
         :param user: The user who issued the command.
         :param args: The arguments passed with the command.
