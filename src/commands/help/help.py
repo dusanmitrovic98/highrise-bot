@@ -8,7 +8,7 @@ class Command:
         self.description = "Your command description"
         self.aliases = ['info', 'hmm']  # you can add as much aliases as u want
         # its optional to add permissions, i dont have the permission example in config.permissions.json
-        self.permissions = ['example']
+        self.permissions = []
         self.cooldown = 5
 
     async def execute(self, user: User, args: list, message: str):

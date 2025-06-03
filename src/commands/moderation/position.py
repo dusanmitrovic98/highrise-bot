@@ -5,9 +5,10 @@ from config.config import config, messages, permissions
 class Command:
     def __init__(self, bot):
         self.bot = bot
-        self.name = "print"
-        self.description = "Print someone's data"
-        self.aliases = ['location', 'coords']
+        self.name = "position"
+        self.description = "Display someone's position in the room."
+        self.permissions = ['admin', 'moderator']
+        self.aliases = ['location', 'coords', 'coordinates']
         self.cooldown = 5
 
     async def execute(self, user: User, args: list, message: str):
