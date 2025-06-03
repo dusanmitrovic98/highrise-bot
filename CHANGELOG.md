@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Command loader now skips `command_base.py` and files without a `Command` class, preventing spurious log errors.
+- Changed `/reset` command to exit the process, ensuring single restart when using monitor script.
 
 ## [0.0.1] - 2025-06-03
 
