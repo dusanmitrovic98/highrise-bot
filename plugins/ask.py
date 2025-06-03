@@ -1,7 +1,8 @@
 from highrise import User
 from config.config import config
-from src.utility.ai import ask_bot, chat
+from src.utility.ai import chat
 from src.commands.command_base import CommandBase
+import logging
 
 class Command(CommandBase):
     """
@@ -25,6 +26,6 @@ class Command(CommandBase):
             await self.bot.highrise.chat("\n 🤔")
             response = chat(f"You can currently see these people {users}. And you can there also see their IDs, usernames and coordinates in this room. This prompt was asked by: {user.username}. {question}. On this question you MUST DIRECTLY ANSWER!")
             await self.bot.highrise.chat(f"\n{response.strip()}")
-        except Exception:
+        except Exception as e:
             await self.bot.highrise.chat("Sorry, something went wrong with the AI response.")
-            # Optionally log the error
+            logging.error(f"Error in ask command: {e}", exc_info=True)
