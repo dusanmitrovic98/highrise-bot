@@ -1,29 +1,8 @@
-from highrise import User
-import requests
-import os
 import json
+import requests
 
+from highrise import User
 from config.config import config
-
-# def chat(prompt):
-#     llama_70B = "llama-3.1-70b-versatile"
-#     url = "https://api.groq.com/openai/v1/chat/completions"
-#     headers = {
-#         "Authorization": f"Bearer {os.getenv('GROQ_API_KEY')}",
-#         "Content-Type": "application/json"
-#     }
-#     data = {
-#         "messages": [{"role": "user", "content": prompt}],
-#         "model": llama_70B,
-#         "max_tokens": 20
-#     }
-    
-#     response = requests.post(url, headers=headers, json=data)
-    
-#     if response.status_code == 200:
-#         return response.json().get('choices')[0].get('message').get('content')
-#     else:
-#         return f"Error: {response.status_code}, {response.text}"
 
 def chat(prompt):
     url = config.url
@@ -33,9 +12,9 @@ def chat(prompt):
     data = {
         "prompt": prompt
     }
-    
+    fallback_message_ai = config.fallback_message_ai
     try:
-        chat_response = "Sorry, can you ask me again later? I am kinda busy!"
+        chat_response = fallback_message_ai
         iterations = 0
         while True:
             iterations += 1
@@ -48,7 +27,7 @@ def chat(prompt):
             chat_response = response.json().get("response", "")
             
             if iterations >= 5:
-                chat_response = "Sorry, can you ask me again later? I am kinda SUPER busy!"
+                chat_response = fallback_message_ai
                 break
             if len(chat_response) <= 255:
                 break 
@@ -56,12 +35,12 @@ def chat(prompt):
         chat_response = remove_chars_until_punctuation(chat_response)
 
         if not chat_response:
-            chat_response = "Sorry, can you ask me again later? I am kinda SUPER busy!"
+            chat_response = fallback_message_ai
         return chat_response.strip()
     
     except requests.exceptions.RequestException as e:
         print(f"Error: {e}")
-        return "Sorry, there was a problem with the AI service."
+        return fallback_message_ai
 
 async def ask_bot(bot, user: User, question: str):
     room_users = await bot.highrise.get_room_users()
@@ -97,9 +76,9 @@ def remove_chars_until_punctuation(s):
     return s[:index + 1]
 
 # Commit message:
-# fix(ai): correct punctuation set syntax in remove_chars_until_punctuation
+# refactor(ai): rename ai_fallback to ai_nonsense for AI nonsense fallback responses
 #
 # CHANGELOG.md entry:
-# - fix(ai): Fixed punctuation set syntax in remove_chars_until_punctuation to prevent syntax errors and improve response trimming.
+# - refactor(ai): Renamed ai_fallback to ai_nonsense in config and code for AI nonsense fallback responses.
 
 

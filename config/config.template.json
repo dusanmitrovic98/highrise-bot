@@ -25,6 +25,7 @@
         "invalidPlayer": "{user} is not in the room.",
         "invalidUser": "User {user} is not found.",
         "invalidUsage": "Usage: {prefix}{commandName}{args}",
-        "invalidUserFormat": "Invalid user format. Please use '@username'."
+        "invalidUserFormat": "Invalid user format. Please use '@username'.",
+        "fallback_message_ai": "Sorry, can you ask me again later? I am kinda SUPER busy lol"
     }
 }
