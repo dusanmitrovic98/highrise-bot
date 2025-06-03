@@ -5,12 +5,6 @@ from src.commands.command_base import CommandBase
 class Command(CommandBase):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = 'help'
-        self.description = "Your command description"
-        self.aliases = ['info', 'hmm']  # you can add as much aliases as u want
-        # its optional to add permissions, i dont have the permission example in config.permissions.json
-        self.permissions = []
-        self.cooldown = 5
 
     async def execute(self, user: User, args: list, message: str):
         # now notice that we used self.bot.highrise and not self.highrise, keep this in mind

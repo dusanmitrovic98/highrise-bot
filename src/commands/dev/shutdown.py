@@ -6,11 +6,6 @@ from src.commands.command_base import CommandBase
 class Command(CommandBase):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = "shutdown"
-        self.description = "Shut down the bot (admin only)."
-        self.cooldown = 0
-        self.permissions = ["admin"]
-        self.aliases = []
 
     async def execute(self, user: User, args: list, message: str):
         from src.handlers.handleCommands import get_user_permissions

@@ -1,5 +1,5 @@
 {
-  "reset": {
+  "reboot": {
     "name": "reboot",
     "description": "Restart the bot process (admin only).",
     "permissions": ["admin"],
@@ -13,18 +13,67 @@
     "aliases": [],
     "cooldown": 0
   },
-  "ask": {
-    "name": "ask",
-    "description": "Give the AI the question to answer",
-    "permissions": ["ask"],
-    "aliases": ["speak", "talk"],
-    "cooldown": 10
+  "shutdown": {
+    "name": "shutdown",
+    "description": "Shut down the bot (admin only).",
+    "permissions": ["admin"],
+    "aliases": [],
+    "cooldown": 0
   },
   "help": {
     "name": "help",
     "description": "Show help information.",
     "permissions": [],
     "aliases": ["info", "hmm"],
+    "cooldown": 5
+  },
+  "wallet": {
+    "name": "wallet",
+    "description": "Check the bot's wallet",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 5
+  },
+  "whoami": {
+    "name": "whoami",
+    "description": "Show your user ID, username, and permissions.",
+    "permissions": [],
+    "aliases": ["myrole", "myperms", "permissions"],
+    "cooldown": 3
+  },
+  "come": {
+    "name": "come",
+    "description": "Teleport the bot to a player's position.",
+    "permissions": ["come", "admin", "owner", "*"],
+    "aliases": ["walk"],
+    "cooldown": 5
+  },
+  "grant_permission": {
+    "name": "grant_permission",
+    "description": "Grant a permission or role to a user",
+    "permissions": ["admin", "owner", "*"] ,
+    "aliases": [],
+    "cooldown": 10
+  },
+  "position": {
+    "name": "position",
+    "description": "Display someone's position in the room.",
+    "permissions": ["admin", "moderator"],
+    "aliases": ["location", "coords", "coordinates"],
+    "cooldown": 5
+  },
+  "summon": {
+    "name": "summon",
+    "description": "Teleport a player to your position",
+    "permissions": ["teleport"],
+    "aliases": ["tptome"],
+    "cooldown": 5
+  },
+  "teleport": {
+    "name": "teleport",
+    "description": "Teleport a player to a specific position",
+    "permissions": ["teleport"],
+    "aliases": ["tp"],
     "cooldown": 5
   }
 }

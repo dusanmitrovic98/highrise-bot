@@ -5,11 +5,6 @@ from src.commands.command_base import CommandBase
 class Command(CommandBase):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = "reload"
-        self.description = "Reload all commands and plugins (admin/owner only)."
-        self.cooldown = 0
-        self.permissions = ["admin", "owner"]
-        self.aliases = []
 
     async def execute(self, user: User, args: list, message: str):
         from src.handlers.handleCommands import get_user_permissions

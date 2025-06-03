@@ -6,11 +6,6 @@ from src.handlers.handleCommands import get_user_permissions
 class Command(CommandBase):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = "reboot"
-        self.description = "Restart the bot process (admin only)."
-        self.cooldown = 0
-        self.permissions = ["admin"]
-        self.aliases = []
 
     async def execute(self, user: User, args: list, message: str):
         user_permissions = get_user_permissions(user)

@@ -5,10 +5,6 @@ from src.utility.utility import load_permissions, save_permissions
 from src.commands.command_base import CommandBase
 from src.handlers.handleCommands import get_user_permissions
 
-COMMAND_NAME = "grant_permission"
-COMMAND_DESCRIPTION = "Grant a permission or role to a user"
-COMMAND_ALIASES = []
-COMMAND_COOLDOWN = 10
 INVALID_COMMAND_MESSAGE = "Invalid command format. Use /grant_permission @username permission OR /grant_role @username role"
 USER_NOT_FOUND_MESSAGE = "User {username} not found."
 PERMISSION_GRANTED_MESSAGE = "Permission {permission} granted to {username}."
@@ -23,12 +19,6 @@ REVOKE_ROLE_PATTERN = re.compile(rf"{config.prefix}revoke_role @([\w-]+) (\w+)")
 class Command(CommandBase):
     def __init__(self, bot):
         super().__init__(bot)
-        # Load config from commands.json if available
-        config_db = getattr(bot, "commands_config", {}).get("grant_permission", {})
-        self.name = config_db.get("name", COMMAND_NAME)
-        self.description = config_db.get("description", COMMAND_DESCRIPTION)
-        self.aliases = config_db.get("aliases", COMMAND_ALIASES)
-        self.cooldown = config_db.get("cooldown", COMMAND_COOLDOWN)
 
     async def execute(self, user: User, args: list, message: str):
         user_permissions = get_user_permissions(user)

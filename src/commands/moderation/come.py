@@ -3,12 +3,6 @@ from config.config import messages
 from src.commands.command_base import CommandBase
 from src.handlers.handleCommands import get_user_permissions
 
-COMMAND_NAME = "come"
-COMMAND_DESCRIPTION = "Teleport a player to a specific position"
-COMMAND_ALIASES = ['walk']
-COMMAND_COOLDOWN = 5
-OWNER_ONLY_MESSAGE = "This command is owner only command"
-INVALID_POSITION_MESSAGE = "Invalid position."
 COMING_MESSAGE = "@{username} I'm coming .."
 
 class Command(CommandBase):
@@ -17,10 +11,6 @@ class Command(CommandBase):
     """
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = COMMAND_NAME
-        self.description = COMMAND_DESCRIPTION
-        self.aliases = COMMAND_ALIASES
-        self.cooldown = COMMAND_COOLDOWN
 
     async def execute(self, user: User, args: list, message: str):
         user_permissions = get_user_permissions(user)

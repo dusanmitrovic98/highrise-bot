@@ -12,9 +12,6 @@ class Command(CommandBase):
         Initialize the wallet command with the bot instance.
         """
         super().__init__(bot)
-        self.name = "wallet"
-        self.description = "Check the bot's wallet"
-        self.cooldown = 5
 
     async def execute(self, user: User, args: list, message: str):
         """

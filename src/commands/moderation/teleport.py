@@ -7,11 +7,6 @@ from src.commands.command_base import CommandBase
 class Command(CommandBase):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = "teleport"
-        self.description = "Teleport a player to a specific position"
-        self.aliases = ['tp']
-        self.permissions = ['teleport']
-        self.cooldown = 5
         with open("config/json/locations.json") as f:
             self.room_positions = json.load(f)
 

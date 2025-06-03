@@ -6,11 +6,6 @@ from highrise import User, Position, AnchorPosition
 class Command(CommandBase):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = "position"
-        self.description = "Display someone's position in the room."
-        self.permissions = ['admin', 'moderator']
-        self.aliases = ['location', 'coords', 'coordinates']
-        self.cooldown = 5
 
     async def execute(self, user: User, args: list, message: str):
         from src.handlers.handleCommands import get_user_permissions
