@@ -1,7 +1,11 @@
 .venv/
+
 __pycache__/
 instance/
 .env
 .flaskenv
 *.pyc
 .conda
+
+bot_monitor.log
+bot.log
