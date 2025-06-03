@@ -80,10 +80,12 @@ class CommandHandler:
         command = self.commands.get(command_name)
         if command:
             try:
+                # Log command usage attempt
+                logging.info(f"User '{user.username}' (ID: {user.id}) is attempting command '{command_name}' with args: {args}")
                 if hasattr(command, "permissions"):
                     user_permissions = get_user_permissions(user)
                     if not all(p in user_permissions for p in command.permissions):
-                        await self.bot.highrise.send_whisper(user.id, "You don't have permissions to use this command")
+                        await self.bot.highrise.send_whisper(user.id, f"You don't have permissions to use the '{command_name}' command. Required: {', '.join(command.permissions) or 'None'}.")
                         logging.warning(f"Permission denied for user {user.username} on command {command_name}")
                         return
                 cooldown = command.cooldown
@@ -91,12 +93,16 @@ class CommandHandler:
                 if command_name in self.cooldowns and user_id in self.cooldowns[command_name]:
                     remaining_time = self.cooldowns[command_name][user_id] - time.time()
                     if remaining_time > 0:
-                        await self.bot.highrise.send_whisper(user_id, f"{command_name} is on cooldown. Try again in {int(remaining_time)} seconds.")
+                        await self.bot.highrise.send_whisper(user_id, f"'{command_name}' is on cooldown. Try again in {int(remaining_time)} seconds.")
+                        logging.info(f"User {user.username} tried to use '{command_name}' during cooldown.")
                         return
                 if command_name not in self.cooldowns:
                     self.cooldowns[command_name] = {}
                 self.cooldowns[command_name][user_id] = time.time() + cooldown
                 await command.execute(user, args, message)
+                logging.info(f"Command '{command_name}' executed successfully for user '{user.username}' (ID: {user.id})")
             except Exception as e:
-                await self.bot.highrise.send_whisper(user.id, "An error occurred while executing the command.")
-                logging.error(f"Error executing command {command_name}: {e}")
+                import traceback
+                tb = traceback.format_exc()
+                await self.bot.highrise.send_whisper(user.id, f"An error occurred while executing '{command_name}'. Please check your command usage or try again later.")
+                logging.error(f"Error executing command '{command_name}' for user '{user.username}' (ID: {user.id}) with args {args}: {e}\n{tb}")

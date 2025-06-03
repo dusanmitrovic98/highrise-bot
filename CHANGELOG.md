@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `/reload` (admin/owner only) command: allows hot-reloading of all commands and plugins at runtime without restarting the bot.
 - Added `/whoami` (aliases: `/myrole`, `/myperms`, `/permissions`) command: lets users see their user ID, username, and permissions.
 
+### Changed
+- Improved error handling and user feedback for failed commands: users now receive more descriptive error messages, including permission and cooldown details.
+- Enhanced logging: command usage and errors (with traceback and user context) are now logged for better diagnostics and analytics.
+
 ## [0.0.2] - 2025-06-03
 ### Added
 - Added `reset` dev command: allows admins/owners to restart the bot process via chat command (`/reset` or `/restart`).
