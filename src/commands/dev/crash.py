@@ -1,6 +1,6 @@
-from src.commands.command_base import CommandBase
 import os
 from highrise import User
+from src.commands.command_base import CommandBase
 
 class Command(CommandBase):
     def __init__(self, bot):
@@ -12,5 +12,10 @@ class Command(CommandBase):
         self.aliases = []
 
     async def execute(self, user: User, args: list, message: str):
+        from src.handlers.handleCommands import get_user_permissions
+        user_permissions = get_user_permissions(user)
+        if not ("admin" in user_permissions or "owner" in user_permissions):
+            await self.bot.highrise.send_whisper(user.id, "You do not have permission to crash the bot.")
+            return
         await self.bot.highrise.chat("Bot is crashing down by admin command.")
         os._exit(1)

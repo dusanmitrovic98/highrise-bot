@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Updated permission system integration: `get_user_permissions` in `handleCommands.py` now supports roles and extra permissions from `permissions.json` and aggregates permissions accordingly.
+- All core commands now use the new roles-based permission system from permissions.json. Deprecated static permissions in `config.py`.
 
 ## [0.0.3] - 2025-06-03
 

@@ -1,6 +1,6 @@
-from highrise import User, Position, AnchorPosition
-from config.config import config, messages, permissions
+from config.config import config, messages
 from src.commands.command_base import CommandBase
+from highrise import User, Position, AnchorPosition
 
 
 class Command(CommandBase):
@@ -13,7 +13,9 @@ class Command(CommandBase):
         self.cooldown = 5
 
     async def execute(self, user: User, args: list, message: str):
-        if user.id not in permissions.moderators:
+        from src.handlers.handleCommands import get_user_permissions
+        user_permissions = get_user_permissions(user)
+        if not ("admin" in user_permissions or "owner" in user_permissions):
             return await self.bot.highrise.send_whisper(user.id, "This command is moderator only command")
         else:
             prefix = config.prefix

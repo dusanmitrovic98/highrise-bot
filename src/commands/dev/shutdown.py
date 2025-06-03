@@ -1,6 +1,6 @@
+import os
 from pathlib import Path
 from highrise import User
-import os
 from src.commands.command_base import CommandBase
 
 class Command(CommandBase):
@@ -13,9 +13,9 @@ class Command(CommandBase):
         self.aliases = []
 
     async def execute(self, user: User, args: list, message: str):
-        # Only allow owners to shutdown
-        from config.config import permissions
-        if user.id not in permissions.owners:
+        from src.handlers.handleCommands import get_user_permissions
+        user_permissions = get_user_permissions(user)
+        if not ("admin" in user_permissions or "owner" in user_permissions):
             await self.bot.highrise.send_whisper(user.id, "You do not have permission to shut down the bot.")
             return
         shutdown_flag = Path("shutdown.flag")

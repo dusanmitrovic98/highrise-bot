@@ -1,6 +1,6 @@
-from src.commands.command_base import CommandBase
-from highrise import User
 import logging
+from highrise import User
+from src.commands.command_base import CommandBase
 
 class Command(CommandBase):
     def __init__(self, bot):
@@ -12,8 +12,9 @@ class Command(CommandBase):
         self.aliases = []
 
     async def execute(self, user: User, args: list, message: str):
-        from config.config import permissions
-        if user.id not in permissions.owners and user.id not in permissions.moderators:
+        from src.handlers.handleCommands import get_user_permissions
+        user_permissions = get_user_permissions(user)
+        if not ("admin" in user_permissions or "owner" in user_permissions):
             await self.bot.highrise.send_whisper(user.id, "You do not have permission to reload commands.")
             return
         try:

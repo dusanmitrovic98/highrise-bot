@@ -1,6 +1,7 @@
-from src.commands.command_base import CommandBase
-from highrise import User
 import os
+from highrise import User
+from src.commands.command_base import CommandBase
+from src.handlers.handleCommands import get_user_permissions
 
 class Command(CommandBase):
     def __init__(self, bot):
@@ -12,8 +13,8 @@ class Command(CommandBase):
         self.aliases = ["restart", "reboot"]
 
     async def execute(self, user: User, args: list, message: str):
-        from config.config import permissions
-        if user.id not in permissions.owners:
+        user_permissions = get_user_permissions(user)
+        if "admin" not in user_permissions and "owner" not in user_permissions:
             await self.bot.highrise.send_whisper(user.id, "You do not have permission to reset the bot.")
             return
         await self.bot.highrise.chat("Bot is restarting by admin command.")
