@@ -1,4 +1,3 @@
-from highrise.models import User
 import logging
 
 async def on_channel(bot, sender_id: str, message: str, tags: set[str]) -> None:
@@ -20,17 +19,3 @@ async def on_channel(bot, sender_id: str, message: str, tags: set[str]) -> None:
         logging.info(f"[GIVEAWAY] {sender_id} entered the giveaway via channel message.")
         # Optionally, send a private whisper to the user
         await bot.highrise.send_whisper(sender_id, "You have been entered into the giveaway!")
-
-# TEMPORARY TEST: Simulate a channel event when this file is run directly
-if __name__ == "__main__":
-    import asyncio
-    class DummyBot:
-        class Highrise:
-            async def send_whisper(self, user_id, msg):
-                print(f"[WHISPER to {user_id}]: {msg}")
-            async def chat(self, msg):
-                print(f"[CHAT]: {msg}")
-        highrise = Highrise()
-    async def test():
-        await on_channel(DummyBot(), "6807a86ebcff1952758703b3", "Test giveaway entry", {"giveaway"})
-    asyncio.run(test())

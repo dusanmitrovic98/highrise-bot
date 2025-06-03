@@ -7,14 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- Added `on_channel` event handler in `src/events/channel.py` to support hidden channel messages and admin/bot-to-bot communication.
-- Enhanced `on_channel` to demonstrate usage: responds to 'admin' tag and handles a secret shutdown command via channel message.
-- Added `before_start` event handler in `src/events/before_start.py` to support pre-startup logic and resource setup for the bot.
-
-### Changed
-- Updated `on_channel` event handler to demonstrate a real-life use case: handling a 'giveaway' tag to silently enter users into a giveaway and notify them via whisper, replacing the previous shutdown example.
-
 ## [0.0.4] - 2025-06-03
 
 ### Added
@@ -23,12 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added support for admins/owners to grant and revoke roles using `/grant_role @username role` and `/revoke_role @username role`.
 - Updated `/grant_permission` to allow granting and revoking specific permissions as before.
 - CommandBase now auto-loads command configuration (name, description, aliases, cooldown, permissions) from commands.json for all commands.
+- Added `on_channel` event handler in `src/events/channel.py` to support hidden channel messages and admin/bot-to-bot communication.
+- Enhanced `on_channel` to demonstrate usage: responds to 'admin' tag and handles a secret shutdown command via channel message.
+- Added `before_start` event handler in `src/events/before_start.py` to support pre-startup logic and resource setup for the bot.
 
 ### Changed
 - Updated permission system integration: `get_user_permissions` in `handleCommands.py` now supports roles and extra permissions from `permissions.json` and aggregates permissions accordingly.
 - All core commands now use the new roles-based permission system from permissions.json. Deprecated static permissions in `config.py`.
 - Refactored config system: config, loggers, messages, permissions, and authorization are now exported as dynamic classes backed by config.json, allowing persistent and editable configuration while maintaining backward compatibility with previous attribute access patterns.
 - Removed redundant config loading from individual command classes.
+- Updated `on_channel` event handler to demonstrate a real-life use case: handling a 'giveaway' tag to silently enter users into a giveaway and notify them via whisper, replacing the previous shutdown example.
 
 ### Fixed
 - Fixed permission checks for owner users: commands now recognize 'owner' role as super admin and allow all actions as intended.
