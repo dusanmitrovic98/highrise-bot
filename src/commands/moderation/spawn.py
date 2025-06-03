@@ -7,6 +7,9 @@ class Command(CommandBase):
     Command to set the bot's current position as the spawn point in config.json.
     Usage: !spawn
     """
+    def __init__(self, bot):
+        super().__init__(bot)
+
     async def execute(self, user: User, args: list, message: str):
         # Get the bot's current position by searching for its own user ID in the room
         response = await self.bot.highrise.get_room_users()
