@@ -7,16 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.0.2] - 2025-06-03
-
-### Added
-- Refactored all command modules to inherit from the new `CommandBase` abstract class for consistency and maintainability.
-- Fixed minor code issues and improved code structure in command modules.
-
 ## [0.0.1] - 2025-06-03
 
 ### Added
 - CommandBase abstract class to standardize all command implementations.
+- Refactored all command modules to inherit from the new `CommandBase` abstract class for consistency and maintainability.
+- Fixed minor code issues and improved code structure in command modules.
 
 
 # Format:
