@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored `CommandHandler` in `handleCommands.py` to add type annotations, improved error handling, and logging for command loading and execution.
 - Improved command registration and permission handling for maintainability and robustness.
 - Refactored `handleEvents.py` to use logging for error reporting instead of print, improving consistency and maintainability.
+- Plugin loader: Commands can now be dynamically loaded from a `plugins/` directory for greater extensibility.
 
 ## [0.0.1] - 2025-06-03
 
