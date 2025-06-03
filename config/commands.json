@@ -89,5 +89,12 @@
     "permissions": ["owner"],
     "aliases": [],
     "cooldown": 0
+  },
+  "spawn": {
+    "name": "spawn",
+    "description": "Set the bot's current position as the spawn point.",
+    "permissions": ["owner"],
+    "aliases": [],
+    "cooldown": 0
   }
 }
