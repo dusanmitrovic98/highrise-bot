@@ -1,29 +1,27 @@
 import re
 from highrise import User
-from config.config import config, permissions
-from src.utility.utility import (
-    get_user, get_user_id, load_permissions, save_permissions,
-    user_exists, username_exists
-)
+from config.config import config
+from src.utility.utility import load_permissions, save_permissions
 from src.commands.command_base import CommandBase
+from src.handlers.handleCommands import get_user_permissions
 
 COMMAND_NAME = "grant_permission"
-COMMAND_DESCRIPTION = "Grant a permission to a user"
+COMMAND_DESCRIPTION = "Grant a permission or role to a user"
 COMMAND_ALIASES = []
 COMMAND_COOLDOWN = 10
-INVALID_COMMAND_MESSAGE = "Invalid command format. Use /grant_permission @username permission"
+INVALID_COMMAND_MESSAGE = "Invalid command format. Use /grant_permission @username permission OR /grant_role @username role"
 USER_NOT_FOUND_MESSAGE = "User {username} not found."
 PERMISSION_GRANTED_MESSAGE = "Permission {permission} granted to {username}."
-PERMISSION_PATTERN = re.compile(rf"{config.prefix}grant_permission @(\w+) (\w+)")
+PERMISSION_REVOKED_MESSAGE = "Permission {permission} revoked from {username}."
+ROLE_GRANTED_MESSAGE = "Role {role} granted to {username}."
+ROLE_REVOKED_MESSAGE = "Role {role} revoked from {username}."
+PERMISSION_PATTERN = re.compile(rf"{config.prefix}grant_permission @([\w-]+) (\w+)")
+ROLE_PATTERN = re.compile(rf"{config.prefix}grant_role @([\w-]+) (\w+)")
+REVOKE_PERMISSION_PATTERN = re.compile(rf"{config.prefix}revoke_permission @([\w-]+) (\w+)")
+REVOKE_ROLE_PATTERN = re.compile(rf"{config.prefix}revoke_role @([\w-]+) (\w+)")
 
 class Command(CommandBase):
-    """
-    Command to grant a permission to a user.
-    """
     def __init__(self, bot):
-        """
-        Initialize the grant_permission command with the bot instance.
-        """
         super().__init__(bot)
         self.name = COMMAND_NAME
         self.description = COMMAND_DESCRIPTION
@@ -31,52 +29,87 @@ class Command(CommandBase):
         self.cooldown = COMMAND_COOLDOWN
 
     async def execute(self, user: User, args: list, message: str):
-        """
-        Execute the grant_permission command.
-        
-        :param user: The user who issued the command.
-        :param args: The arguments passed with the command.
-        :param message: The message containing the command.
-        """
+        user_permissions = get_user_permissions(user)
+        if not ("admin" in user_permissions or "owner" in user_permissions):
+            await self.bot.highrise.send_whisper(user.id, "You do not have permission to grant or revoke permissions/roles.")
+            return
+        # Grant permission
         match = PERMISSION_PATTERN.match(message.strip())
-        if not match:
-            await self.bot.highrise.chat(INVALID_COMMAND_MESSAGE)
+        if match:
+            username, permission = match.groups()
+            await self.grant_permission(username, permission, user)
             return
-
-        username = match.group(1)
-        permission = match.group(2)
-
-        users = load_permissions()["permissions"]
-
-        if not username_exists(users, username):
-            await self.bot.highrise.chat(USER_NOT_FOUND_MESSAGE.format(username=username))
+        # Grant role
+        match = ROLE_PATTERN.match(message.strip())
+        if match:
+            username, role = match.groups()
+            await self.grant_role(username, role, user)
             return
+        # Revoke permission
+        match = REVOKE_PERMISSION_PATTERN.match(message.strip())
+        if match:
+            username, permission = match.groups()
+            await self.revoke_permission(username, permission, user)
+            return
+        # Revoke role
+        match = REVOKE_ROLE_PATTERN.match(message.strip())
+        if match:
+            username, role = match.groups()
+            await self.revoke_role(username, role, user)
+            return
+        await self.bot.highrise.send_whisper(user.id, INVALID_COMMAND_MESSAGE)
 
-        target_user = User(id=get_user_id(users, username), username=username)
-        set_permission_to_user(target_user, permission)
-        
-        await self.bot.highrise.chat(PERMISSION_GRANTED_MESSAGE.format(permission=permission, username=username))
+    async def grant_permission(self, username, permission, sender):
+        data = load_permissions()
+        user_id = self.get_user_id_by_username(data, username)
+        if not user_id:
+            await self.bot.highrise.send_whisper(sender.id, USER_NOT_FOUND_MESSAGE.format(username=username))
+            return
+        user_entry = data["users"].setdefault(user_id, {"roles": [], "extra_permissions": []})
+        if permission not in user_entry["extra_permissions"]:
+            user_entry["extra_permissions"].append(permission)
+            save_permissions(data)
+        await self.bot.highrise.send_whisper(sender.id, PERMISSION_GRANTED_MESSAGE.format(permission=permission, username=username))
 
-def set_permission_to_user(user: User, permission: str):
-    """
-    Set a permission to a user.
-    
-    :param user: The user to set the permission for.
-    :param permission: The permission to set.
-    """
-    data = load_permissions()
-    if user_exists(data['permissions'], user.id):
-        existing_user = get_user(data['permissions'], user.id)
-        if permission not in existing_user['permissions']:
-            existing_user['permissions'].append(permission)
-    else:
-        new_user = {
-            'user_id': user.id,
-            'username': user.username,
-            'permissions': permissions.default
-        }
-        if permission not in new_user['permissions']:
-            new_user['permissions'].append(permission)
-        data['permissions'].append(new_user)
+    async def revoke_permission(self, username, permission, sender):
+        data = load_permissions()
+        user_id = self.get_user_id_by_username(data, username)
+        if not user_id:
+            await self.bot.highrise.send_whisper(sender.id, USER_NOT_FOUND_MESSAGE.format(username=username))
+            return
+        user_entry = data["users"].setdefault(user_id, {"roles": [], "extra_permissions": []})
+        if permission in user_entry["extra_permissions"]:
+            user_entry["extra_permissions"].remove(permission)
+            save_permissions(data)
+        await self.bot.highrise.send_whisper(sender.id, PERMISSION_REVOKED_MESSAGE.format(permission=permission, username=username))
 
-    save_permissions(data)
+    async def grant_role(self, username, role, sender):
+        data = load_permissions()
+        user_id = self.get_user_id_by_username(data, username)
+        if not user_id:
+            await self.bot.highrise.send_whisper(sender.id, USER_NOT_FOUND_MESSAGE.format(username=username))
+            return
+        user_entry = data["users"].setdefault(user_id, {"roles": [], "extra_permissions": []})
+        if role not in user_entry["roles"]:
+            user_entry["roles"].append(role)
+            save_permissions(data)
+        await self.bot.highrise.send_whisper(sender.id, ROLE_GRANTED_MESSAGE.format(role=role, username=username))
+
+    async def revoke_role(self, username, role, sender):
+        data = load_permissions()
+        user_id = self.get_user_id_by_username(data, username)
+        if not user_id:
+            await self.bot.highrise.send_whisper(sender.id, USER_NOT_FOUND_MESSAGE.format(username=username))
+            return
+        user_entry = data["users"].setdefault(user_id, {"roles": [], "extra_permissions": []})
+        if role in user_entry["roles"]:
+            user_entry["roles"].remove(role)
+            save_permissions(data)
+        await self.bot.highrise.send_whisper(sender.id, ROLE_REVOKED_MESSAGE.format(role=role, username=username))
+
+    def get_user_id_by_username(self, data, username):
+        # Try to find user by username in users dict
+        for uid, entry in data["users"].items():
+            if entry.get("username", "").lower() == username.lower():
+                return uid
+        return None

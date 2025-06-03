@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Defined roles (`owner`, `admin`, `moderator`, `user`, `guest`) and their default permissions in `permissions.json`.
 - Established permissions system allowing users to have roles and custom/extra permissions.
+- Added support for admins/owners to grant and revoke roles using `/grant_role @username role` and `/revoke_role @username role`.
+- Updated `/grant_permission` to allow granting and revoking specific permissions as before.
 
 ### Changed
 - Updated permission system integration: `get_user_permissions` in `handleCommands.py` now supports roles and extra permissions from `permissions.json` and aggregates permissions accordingly.
