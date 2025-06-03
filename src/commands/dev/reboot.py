@@ -6,15 +6,16 @@ from src.handlers.handleCommands import get_user_permissions
 class Command(CommandBase):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = "reset"
+        self.name = "reboot"
         self.description = "Restart the bot process (admin only)."
         self.cooldown = 0
         self.permissions = ["admin"]
-        self.aliases = ["restart", "reboot"]
+        self.aliases = []
 
     async def execute(self, user: User, args: list, message: str):
         user_permissions = get_user_permissions(user)
-        if "admin" not in user_permissions and "owner" not in user_permissions:
+        # Allow if user has '*' (owner), 'admin', or 'owner' in permissions
+        if not ("*" in user_permissions or "admin" in user_permissions or "owner" in user_permissions):
             await self.bot.highrise.send_whisper(user.id, "You do not have permission to reset the bot.")
             return
         await self.bot.highrise.chat("Bot is restarting by admin command.")

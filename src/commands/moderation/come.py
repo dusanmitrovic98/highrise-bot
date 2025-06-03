@@ -24,8 +24,8 @@ class Command(CommandBase):
 
     async def execute(self, user: User, args: list, message: str):
         user_permissions = get_user_permissions(user)
-        # Accept if user has 'come', 'admin', 'owner', or any role name as permission
-        if not ("come" in user_permissions or "admin" in user_permissions or "owner" in user_permissions):
+        # Accept if user has 'come', 'admin', 'owner', or '*'
+        if not ("*" in user_permissions or "come" in user_permissions or "admin" in user_permissions or "owner" in user_permissions):
             await self.bot.highrise.send_whisper(user.id, "You do not have permission to use the come command.")
             return
         your_pos = await self.get_user_position(user.id)

@@ -23,14 +23,17 @@ REVOKE_ROLE_PATTERN = re.compile(rf"{config.prefix}revoke_role @([\w-]+) (\w+)")
 class Command(CommandBase):
     def __init__(self, bot):
         super().__init__(bot)
-        self.name = COMMAND_NAME
-        self.description = COMMAND_DESCRIPTION
-        self.aliases = COMMAND_ALIASES
-        self.cooldown = COMMAND_COOLDOWN
+        # Load config from commands.json if available
+        config_db = getattr(bot, "commands_config", {}).get("grant_permission", {})
+        self.name = config_db.get("name", COMMAND_NAME)
+        self.description = config_db.get("description", COMMAND_DESCRIPTION)
+        self.aliases = config_db.get("aliases", COMMAND_ALIASES)
+        self.cooldown = config_db.get("cooldown", COMMAND_COOLDOWN)
 
     async def execute(self, user: User, args: list, message: str):
         user_permissions = get_user_permissions(user)
-        if not ("admin" in user_permissions or "owner" in user_permissions):
+        # Allow if user has '*' (owner), 'admin', or 'owner' in permissions
+        if not ("*" in user_permissions or "admin" in user_permissions or "owner" in user_permissions):
             await self.bot.highrise.send_whisper(user.id, "You do not have permission to grant or revoke permissions/roles.")
             return
         # Grant permission

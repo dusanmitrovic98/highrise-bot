@@ -1,0 +1,30 @@
+{
+  "reset": {
+    "name": "reboot",
+    "description": "Restart the bot process (admin only).",
+    "permissions": ["admin"],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "reload": {
+    "name": "reload",
+    "description": "Reload all commands and plugins (admin/owner only).",
+    "permissions": ["admin", "owner"],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "ask": {
+    "name": "ask",
+    "description": "Give the AI the question to answer",
+    "permissions": ["ask"],
+    "aliases": ["speak", "talk"],
+    "cooldown": 10
+  },
+  "help": {
+    "name": "help",
+    "description": "Show help information.",
+    "permissions": [],
+    "aliases": ["info", "hmm"],
+    "cooldown": 5
+  }
+}

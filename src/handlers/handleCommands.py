@@ -16,24 +16,15 @@ def get_user_permissions(user: User) -> List[str]:
     user_entry = users.get(user.id)
     permissions_set = set()
     if user_entry:
-        is_owner = False
         for role in user_entry.get("roles", []):
             role_perms = roles.get(role, [])
             if "*" in role_perms:
-                # Owner: all permissions (all keys except '*')
-                all_perms = set()
-                for perms in roles.values():
-                    all_perms.update(perms)
-                # Also add all role names as permissions (for admin/owner checks)
-                all_perms.update(roles.keys())
-                permissions_set = all_perms
-                is_owner = True
-                break
+                # Owner: all permissions, truly unrestricted
+                return ["*"]
             permissions_set.update(role_perms)
-        if not is_owner:
-            permissions_set.update(user_entry.get("extra_permissions", []))
-            # Also add role names as permissions for admin/owner checks
-            permissions_set.update(user_entry.get("roles", []))
+        permissions_set.update(user_entry.get("extra_permissions", []))
+        # Also add role names as permissions for admin/owner checks
+        permissions_set.update(user_entry.get("roles", []))
     return list(permissions_set)
 
 
@@ -45,7 +36,15 @@ class CommandHandler:
         self.load_commands()
 
     def load_commands(self):
-        """Load commands from modules in the src/commands directory and plugins directory."""
+        """Load commands from modules in the src/commands directory and plugins directory, using config/commands.json for config."""
+        # Load command config database
+        commands_config = {}
+        try:
+            with open(os.path.join(os.path.dirname(__file__), "..", "..", "config", "commands.json"), "r", encoding="utf-8") as f:
+                commands_config = json.load(f)
+        except Exception as e:
+            logging.warning(f"Could not load commands.json: {e}")
+        self.commands_config = commands_config
         commands_dir = os.path.join(os.path.dirname(__file__), "..", "commands")
         self._load_commands_from_dir(commands_dir, module_prefix="src.commands")
         # Plugin loader: load from plugins/ directory if exists
@@ -73,6 +72,11 @@ class CommandHandler:
                     if not hasattr(module, "Command"):
                         continue  # Skip files that do not define a Command class
                     command = getattr(module, "Command")(self.bot)
+                    # Inject config from commands.json if present
+                    config = self.commands_config.get(command_name)
+                    if config:
+                        for k, v in config.items():
+                            setattr(command, k, v)
                     if command_name in self.commands:
                         del self.commands[command_name]
                     for alias in getattr(command, "aliases", []):
@@ -102,8 +106,11 @@ class CommandHandler:
                 logging.info(f"User '{user.username}' (ID: {user.id}) is attempting command '{command_name}' with args: {args}")
                 if hasattr(command, "permissions"):
                     user_permissions = get_user_permissions(user)
+                    # If user has '*', allow all commands
+                    if "*" in user_permissions:
+                        pass  # Owner: always allow
                     # Allow if user has any required permission
-                    if command.permissions and not any(p in user_permissions for p in command.permissions):
+                    elif command.permissions and not any(p in user_permissions for p in command.permissions):
                         await self.bot.highrise.send_whisper(user.id, f"You don't have permissions to use the '{command_name}' command. Required: {', '.join(command.permissions) or 'None'}.")
                         logging.warning(f"Permission denied for user {user.username} on command {command_name}")
                         return
