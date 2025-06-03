@@ -1,8 +1,6 @@
-import random
 import json
 from highrise.models import User
 from config.config import loggers, config
-from src.utility.ai import ask_bot
 import logging
 
 EMOTES_PATH = 'config/json/emotes.json'
@@ -17,12 +15,6 @@ async def on_chat(bot, user: User, message: str) -> None:
     try:
         if loggers.messages:
             logging.info(f"(chat) {user.username}: {message}")
-        if message.startswith("/ask"):
-            pass
-        else:
-            if random.random() < 0.3:
-                await ask_bot(bot, user, "\"" + message + "\"")
-            pass
         if message.lstrip().startswith(config.prefix):
             await bot.command_handler.handle_command(user, message)
 
