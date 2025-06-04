@@ -69,44 +69,48 @@ class Command(CommandBase):
         # Get current position and facing direction
         pos = user_map[target_username][1]
         facing = getattr(pos, 'facing', 'FrontRight')
-        # Facing is a string, map to angle in degrees
+        # Facing is a string, map to angle in degrees (swap FrontLeft and BackLeft)
         facing_map = {
-            'FrontRight': 0,
-            'BackRight': 90,
-            'BackLeft': 180,
-            'FrontLeft': 270
+            'FrontRight': 90,
+            'BackRight': 0,
+            'BackLeft': 270,    # swapped with FrontLeft
+            'FrontLeft': 180    # swapped with BackLeft
         }
-        angle_deg = facing_map.get(facing, 0)
+        angle_deg = facing_map.get(facing, 90)
 
-        # Direction vector
-        dx, dy, dz = 0, 0, 0
+        # Direction vector logic (fix: combine, normalize, scale)
+        dx, dy, dz = 0.0, 0.0, 0.0
         if direction:
             for dir in direction:
                 if dir == "up":
-                    dy += blink_distance
+                    dy += 1
                 elif dir == "down":
-                    dy -= blink_distance
+                    dy -= 1
                 elif dir == "left":
-                    # Left is 90 degrees counterclockwise from facing
                     left_angle = angle_deg - 90
                     rad = math.radians(left_angle)
-                    dx += math.cos(rad) * blink_distance
-                    dz += math.sin(rad) * blink_distance
-                elif dir in ("right",):
-                    # Right is 90 degrees clockwise from facing
+                    dx += math.cos(rad)
+                    dz += math.sin(rad)
+                elif dir == "right":
                     right_angle = angle_deg + 90
                     rad = math.radians(right_angle)
-                    dx += math.cos(rad) * blink_distance
-                    dz += math.sin(rad) * blink_distance
+                    dx += math.cos(rad)
+                    dz += math.sin(rad)
                 elif dir in ("back", "backward"):
                     back_angle = angle_deg + 180
                     rad = math.radians(back_angle)
-                    dx += math.cos(rad) * blink_distance
-                    dz += math.sin(rad) * blink_distance
+                    dx += math.cos(rad)
+                    dz += math.sin(rad)
                 elif dir == "forward":
                     rad = math.radians(angle_deg)
-                    dx += math.cos(rad) * blink_distance
-                    dz += math.sin(rad) * blink_distance
+                    dx += math.cos(rad)
+                    dz += math.sin(rad)
+            # Normalize vector (dx, dy, dz) if not zero
+            mag = math.sqrt(dx*dx + dy*dy + dz*dz)
+            if mag > 0:
+                dx = dx / mag * blink_distance
+                dy = dy / mag * blink_distance
+                dz = dz / mag * blink_distance
         else:
             # Default: forward
             rad = math.radians(angle_deg)
