@@ -19,19 +19,20 @@ class CommandBase(ABC):
         self.permissions = []
         # Determine config source: plugin or command
         config_db = {}
-        # Try to detect if this is a plugin (by file path or class name)
         is_plugin = False
-        # Try to get the file path of the class
         file_path = getattr(self, '__module__', None)
         if file_path and ('.plugins.' in file_path or file_path.startswith('plugins.')):
             is_plugin = True
-        # If bot has a plugins_config or commands_config dict, use it
+        # Try to get the plugin name from the module path (filename)
+        plugin_name = None
+        if is_plugin and file_path:
+            # plugins.dummy or plugins.ask
+            plugin_name = file_path.split('.')[-1]
         if is_plugin:
             # Load config from plugins.json if available
-            config_db = getattr(bot, "plugins_config", {}).get(self.__class__.__name__.lower(), {})
+            config_db = getattr(bot, "plugins_config", {}).get(plugin_name, {})
             if not config_db and hasattr(self, 'name') and self.name:
                 config_db = getattr(bot, "plugins_config", {}).get(self.name, {})
-            # Fallback: try to load config directly from file if not present in bot
             if not config_db:
                 config_path = os.path.join(os.path.dirname(__file__), '../../config/plugins.json')
                 config_path = os.path.normpath(config_path)
@@ -39,14 +40,9 @@ class CommandBase(ABC):
                     with open(config_path, 'r', encoding='utf-8') as f:
                         try:
                             config_data = json.load(f)
-                            # Try both class name and all keys for plugin commands
-                            config_db = config_data.get(self.__class__.__name__.lower(), {})
-                            if not config_db:
-                                # Try any config entry with a matching file name
-                                for v in config_data.values():
-                                    if isinstance(v, dict) and v.get("name"):
-                                        config_db = v
-                                        break
+                            config_db = config_data.get(plugin_name, {})
+                            if not config_db and hasattr(self, 'name') and self.name:
+                                config_db = config_data.get(self.name, {})
                         except Exception:
                             pass
         else:
@@ -56,6 +52,9 @@ class CommandBase(ABC):
         for attr in ["name", "description", "aliases", "cooldown", "permissions"]:
             if attr in config_db:
                 setattr(self, attr, config_db[attr])
+        # Fallback: set name to plugin_name if not set
+        if is_plugin and not self.name and plugin_name:
+            self.name = plugin_name
 
     @abstractmethod
     async def execute(self, user: User, args: list, message: str):

@@ -48,8 +48,10 @@ class Command(CommandBase):
         :param wallet: The wallet object containing the items.
         :return: The amount of gold if found, None otherwise.
         """
-        if hasattr(wallet, 'items'):
-            for item in wallet.items:
+        # Highrise SDK: wallet.content is a list of CurrencyItem
+        items = getattr(wallet, 'content', None) or getattr(wallet, 'items', None)
+        if items:
+            for item in items:
                 if hasattr(item, 'type') and item.type == 'gold':
                     return getattr(item, 'amount', 0)
         return None
