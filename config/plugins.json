@@ -12,5 +12,54 @@
     "permissions": [],
     "aliases": [],
     "cooldown": 0
+  },
+  "push": {
+    "name": "push",
+    "description": "Push a user away from you by a distance.",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "pull": {
+    "name": "pull",
+    "description": "Pull a user toward you by a distance.",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "randomtp": {
+    "name": "randomtp",
+    "description": "Randomly teleport a user in the room.",
+    "permissions": [],
+    "aliases": ["rtp"],
+    "cooldown": 0
+  },
+  "swap": {
+    "name": "swap",
+    "description": "Swap the positions of two users.",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "stack": {
+    "name": "stack",
+    "description": "Stack users on top of each other.",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "line": {
+    "name": "line",
+    "description": "Arrange users in a line in a direction with spacing.",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "unstuck": {
+    "name": "unstuck",
+    "description": "Spread users out horizontally to unstuck them.",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
   }
 }

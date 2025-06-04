@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Updated bot spawn logic to use the `spawn` section from `config.json` instead of the deprecated `coordinates` key. The bot now correctly moves to the configured spawn position on reconnect.
+- Improved `unstuck` command:
+  - Teleports the caller to the bot spawn point if called with no mentions.
+  - If one user is mentioned, uses the caller as the base location for unstucking.
+  - If multiple users are mentioned, spreads them horizontally from the first mentioned user's position.
+  - Uses spawn position and facing from config if available.
+  - Provides clear feedback messages for all cases.
 
 ### Fixed
 - Fixed the `!spawn` command to use `get_room_users()` and `my_id` for determining the bot's position, ensuring compatibility with the current Highrise API.
