@@ -78,39 +78,33 @@ class Command(CommandBase):
         }
         angle_deg = facing_map.get(facing, 90)
 
-        # Direction vector logic (fix: combine, normalize, scale)
+        # Direction vector logic (fix: combine, scale each direction independently, no normalization)
         dx, dy, dz = 0.0, 0.0, 0.0
         if direction:
             for dir in direction:
                 if dir == "up":
-                    dy += 1
+                    dy += blink_distance
                 elif dir == "down":
-                    dy -= 1
+                    dy -= blink_distance
                 elif dir == "left":
                     left_angle = angle_deg - 90
                     rad = math.radians(left_angle)
-                    dx += math.cos(rad)
-                    dz += math.sin(rad)
+                    dx += math.cos(rad) * blink_distance
+                    dz += math.sin(rad) * blink_distance
                 elif dir == "right":
                     right_angle = angle_deg + 90
                     rad = math.radians(right_angle)
-                    dx += math.cos(rad)
-                    dz += math.sin(rad)
+                    dx += math.cos(rad) * blink_distance
+                    dz += math.sin(rad) * blink_distance
                 elif dir in ("back", "backward"):
                     back_angle = angle_deg + 180
                     rad = math.radians(back_angle)
-                    dx += math.cos(rad)
-                    dz += math.sin(rad)
+                    dx += math.cos(rad) * blink_distance
+                    dz += math.sin(rad) * blink_distance
                 elif dir == "forward":
                     rad = math.radians(angle_deg)
-                    dx += math.cos(rad)
-                    dz += math.sin(rad)
-            # Normalize vector (dx, dy, dz) if not zero
-            mag = math.sqrt(dx*dx + dy*dy + dz*dz)
-            if mag > 0:
-                dx = dx / mag * blink_distance
-                dy = dy / mag * blink_distance
-                dz = dz / mag * blink_distance
+                    dx += math.cos(rad) * blink_distance
+                    dz += math.sin(rad) * blink_distance
         else:
             # Default: forward
             rad = math.radians(angle_deg)
