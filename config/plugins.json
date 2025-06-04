@@ -5,5 +5,12 @@
     "permissions": [],
     "aliases": [],
     "cooldown": 0
+  },
+  "blink": {
+    "name": "blink",
+    "description": "Make the user blink.",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
   }
 }

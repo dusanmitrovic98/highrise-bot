@@ -66,7 +66,7 @@
     "name": "teleport",
     "description": "Teleport a player to a specific position.",
     "permissions": ["owner"],
-    "aliases": [],
+    "aliases": ["tp"],
     "cooldown": 0
   },
   "wallet": {

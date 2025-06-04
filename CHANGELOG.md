@@ -11,12 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added `!spawn` command: Owners can now set the bot's current position as the spawn point in `config.json` using the `!spawn` command. The command determines the bot's position by searching for its own user ID in the room and updates the spawn coordinates accordingly.
+- Added blink plugin.
 
 ### Changed
 - Updated bot spawn logic to use the `spawn` section from `config.json` instead of the deprecated `coordinates` key. The bot now correctly moves to the configured spawn position on reconnect.
 
 ### Fixed
 - Fixed the `!spawn` command to use `get_room_users()` and `my_id` for determining the bot's position, ensuring compatibility with the current Highrise API.
+- Fixed teleport command.
 
 ## [0.0.4] - 2025-06-03
 

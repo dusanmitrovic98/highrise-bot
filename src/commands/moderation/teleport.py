@@ -35,11 +35,15 @@ class Command(CommandBase):
                 return
         else:
             position_name = " ".join(args[1:])
-            if position_name not in self.room_positions.get("spawn", {}):
+            found = False
+            for group, locations in self.room_positions.items():
+                if position_name in locations:
+                    dest = Position(*locations[position_name])
+                    found = True
+                    break
+            if not found:
                 await self.bot.highrise.send_whisper(user.id, f"{position_name} is not a valid position in this room.")
                 return
-            else:
-                dest = Position(*self.room_positions["spawn"][position_name])
 
         user_id = next(
             (u.id for u in users if u.username.lower() == args[0][1:].lower()), None)
