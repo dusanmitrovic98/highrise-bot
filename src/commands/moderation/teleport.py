@@ -17,24 +17,29 @@ class Command(CommandBase):
                  for content in response.content]  # Extract the User objects
         usernames = [user.username.lower()
                      for user in users]  # Extract the usernames
-        if len(args) < 2:
-            await self.bot.highrise.send_whisper(user.id, f"{messages.invalidUsage.format(prefix=prefix, commandName='teleport', args='@username <position>')} or {prefix}teleport @username x y z")
+        if len(args) < 1:
+            await self.bot.highrise.send_whisper(user.id, f"{messages.invalidUsage.format(prefix=prefix, commandName='teleport', args='[@username] <position>')} or {prefix}teleport [@username] x y z")
             return
-        elif args[0][0] != "@":
-            await self.bot.highrise.send_whisper(user.id, f"{messages.invalidUserFormat}")
-            return
-        elif args[0][1:].lower() not in usernames:
-            await self.bot.highrise.send_whisper(user.id, f"{messages.invalidPlayer.format(user=args[0][1:])}")
-            return
-        elif len(args) == 4:
+        # Determine if first arg is a user
+        if args[0][0] == "@":
+            username_arg = args[0][1:].lower()
+            if username_arg not in usernames:
+                await self.bot.highrise.send_whisper(user.id, f"{messages.invalidPlayer.format(user=args[0][1:])}")
+                return
+            target_user_id = next((u.id for u in users if u.username.lower() == username_arg), None)
+            pos_args = args[1:]
+        else:
+            target_user_id = user.id
+            pos_args = args
+        if len(pos_args) == 3:
             try:
-                x, y, z = float(args[1]), float(args[2]), float(args[3])
+                x, y, z = float(pos_args[0]), float(pos_args[1]), float(pos_args[2])
                 dest = Position(x, y, z)
             except ValueError:
                 await self.bot.highrise.send_whisper(user.id, "Invalid coordinates")
                 return
         else:
-            position_name = " ".join(args[1:])
+            position_name = " ".join(pos_args)
             found = False
             for group, locations in self.room_positions.items():
                 if position_name in locations:
@@ -44,11 +49,7 @@ class Command(CommandBase):
             if not found:
                 await self.bot.highrise.send_whisper(user.id, f"{position_name} is not a valid position in this room.")
                 return
-
-        user_id = next(
-            (u.id for u in users if u.username.lower() == args[0][1:].lower()), None)
-        if not user_id:
-            await self.bot.highrise.send_whisper(user.id, f"User {args[0][1:]} not found")
-            await self.bot.highrise.send_whisper(user.id, f"{messages.invalidUser.format(user=args[0][1:])}")
+        if not target_user_id:
+            await self.bot.highrise.send_whisper(user.id, "User not found")
             return
-        await self.bot.highrise.teleport(user_id, dest)
+        await self.bot.highrise.teleport(target_user_id, dest)
