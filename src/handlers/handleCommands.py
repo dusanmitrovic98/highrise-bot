@@ -3,6 +3,7 @@ import os
 import json
 import time
 import logging
+import subprocess
 from typing import Dict, Any, List
 from highrise import User
 
@@ -33,6 +34,7 @@ class CommandHandler:
         self.bot = bot
         self.commands: Dict[str, Any] = {}
         self.cooldowns: Dict[str, Dict[str, float]] = {}
+        self.package_processes: Dict[str, subprocess.Popen] = {}  # Track running package processes
         self.load_commands()
 
     def load_commands(self):
@@ -49,10 +51,15 @@ class CommandHandler:
         self._load_commands_from_dir(commands_dir, module_prefix="src.commands")
         # Plugin loader: load from plugins/ directory if exists
         plugins_dir = os.path.join(os.path.dirname(__file__), "..", "..", "plugins")
+        plugins_config_path = os.path.join(os.path.dirname(__file__), "..", "..", "config", "plugins.json")
+        plugins_config = {}
+        if os.path.exists(plugins_config_path):
+            with open(plugins_config_path, 'r', encoding='utf-8') as f:
+                plugins_config = json.load(f)
         if os.path.isdir(plugins_dir):
-            self._load_commands_from_dir(plugins_dir, module_prefix="plugins", is_plugin=True)
+            self._load_commands_from_dir(plugins_dir, module_prefix="plugins", is_plugin=True, plugins_config=plugins_config)
 
-    def _load_commands_from_dir(self, base_dir, module_prefix, is_plugin=False):
+    def _load_commands_from_dir(self, base_dir, module_prefix, is_plugin=False, plugins_config=None):
         for root, dirs, files in os.walk(base_dir):
             for file in files:
                 if not file.endswith(".py"):
@@ -85,6 +92,31 @@ class CommandHandler:
                     self.commands[command.name] = command
                     for alias in getattr(command, "aliases", []):
                         self.commands[alias] = command
+                    # --- PACKAGE MANAGEMENT LOGIC ---
+                    if is_plugin and plugins_config:
+                        plugin_conf = plugins_config.get(command_name) or plugins_config.get(getattr(command, 'name', None))
+                        if plugin_conf and 'package' in plugin_conf:
+                            package_path = plugin_conf['package']
+                            main_py = os.path.join(package_path, 'main.py')
+                            abs_main_py = os.path.abspath(main_py)
+                            # If already running, terminate
+                            if command_name in self.package_processes:
+                                proc = self.package_processes[command_name]
+                                if proc.poll() is None:
+                                    proc.terminate()
+                                    try:
+                                        proc.wait(timeout=5)
+                                    except Exception:
+                                        proc.kill()
+                                del self.package_processes[command_name]
+                            # Start new process
+                            if os.path.exists(abs_main_py):
+                                proc = subprocess.Popen(['python', abs_main_py], creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+                                self.package_processes[command_name] = proc
+                                logging.info(f"Started package process for {command_name}: {abs_main_py}")
+                            else:
+                                logging.warning(f"Package main.py not found for {command_name} at {abs_main_py}")
+                    # --- END PACKAGE MANAGEMENT LOGIC ---
                     if is_plugin:
                         logging.info(f"Loaded plugin command: {command.name} (aliases: {getattr(command, 'aliases', [])}) from {file}")
                     else:

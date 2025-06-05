@@ -1,100 +1,116 @@
 from src.commands.command_base import CommandBase
+import highrise
 import json
 import os
+import asyncio
+
 
 class Command(CommandBase):
     """
     Command to perform an emote using the Highrise SDK.
-    Usage: !emote <emote_id> [@target_user] or !emote list
-    Example: !emote emote-hello @username
+    Usage: !emote <emote_id> or !emote list
     """
+
+    _emote_loop_tasks = {}
+
     def __init__(self, bot):
         super().__init__(bot)
-        self._looping = False
-        self._loop_task = None
-        self._last_emote = None
+        self.emotes = self._load_emotes()
+
+    def _load_emotes(self):
+        emotes_path = os.path.join(os.path.dirname(__file__), '../../../config/json/emotes.json')
+        with open(emotes_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        # emotes_free is a list of emote dicts
+        return data.get('emotes_free', [])
+
+    def _find_emote(self, query):
+        # Try by id, then by name (case-insensitive), then by index
+        for emote in self.emotes:
+            if emote['id'] == query:
+                return emote
+            if emote['name'].lower() == query.lower():
+                return emote
+        # Try by index (1-based or 0-based)
+        try:
+            idx = int(query)
+            if 1 <= idx <= len(self.emotes):
+                return self.emotes[idx-1]
+            elif 0 <= idx < len(self.emotes):
+                return self.emotes[idx]
+        except Exception:
+            pass
+        return None
+
+    async def _emote_loop(self, user, emote_id, target_user_id=None, interval=3.5):
+        print(f"[EMOTE LOOP] Starting emote loop: emote_id={emote_id}, target_user_id={target_user_id}, interval={interval}")
+        while True:
+            print(f"[EMOTE LOOP] Performing emote: {emote_id}")
+            await self.bot.highrise.send_emote(emote_id, target_user_id)
+            await asyncio.sleep(interval)
 
     async def execute(self, user, args, message):
-        import asyncio
-        if args and args[0].lower() == "list":
-            # Show available emotes from config/json/emotes.json
-            emotes_path = os.path.join(os.path.dirname(__file__), '../../../../config/json/emotes.json')
-            try:
-                with open(emotes_path, 'r', encoding='utf-8') as f:
-                    emotes = json.load(f)
-            except Exception:
-                await self.bot.highrise.chat("Could not load emote list.")
-                return
-            emote_lines = [f"{i+1}. {emote} | {emote} loop" for i, emote in enumerate(emotes)]
-            emote_list = "\n".join(emote_lines[:30])  # Show first 30 for brevity
-            await self.bot.highrise.chat(f"Available emotes (first 30):\n{emote_list}\n...\nYou can use: !emote <number>, !emote <emote-name> loop, !emote stop loop")
-            return
         if not args:
-            await self.bot.highrise.chat("Usage: !emote <emote_id> [@target_user] or !emote list")
+            await self.bot.highrise.chat("Usage: !emote <emote_id|emote_name|number|list|stop> [loop] [@username] [interval]")
             return
-        emotes_path = os.path.join(os.path.dirname(__file__), '../../../../config/json/emotes.json')
-        try:
-            with open(emotes_path, 'r', encoding='utf-8') as f:
-                emotes = json.load(f)
-        except Exception:
-            emotes = []
-        # Stop loop
-        if args[0].lower() == "stop" and len(args) > 1 and args[1].lower() == "loop":
-            self._looping = False
-            if self._loop_task:
-                self._loop_task.cancel()
-                self._loop_task = None
-            await self.bot.highrise.chat("Stopped emote loop.")
+        arg = args[0].lower()
+        if arg == 'list':
+            emote_list = [f"{i+1}. {e['name']} ({e['id']})" for i, e in enumerate(self.emotes)]
+            msg = "Available emotes:\n" + "\n".join(emote_list)
+            await self.bot.highrise.send_whisper(user.id, msg)
             return
-        # Loop mode
-        if len(args) >= 2 and args[1].lower() == "loop":
-            emote_id = args[0]
-            if emote_id.isdigit():
-                idx = int(emote_id) - 1
-                if 0 <= idx < len(emotes):
-                    emote_id = emotes[idx]
-                else:
-                    await self.bot.highrise.chat("Invalid emote number.")
-                    return
-            elif emote_id not in emotes:
-                await self.bot.highrise.chat(f"Emote '{emote_id}' not found.")
-                return
-            self._looping = True
-            self._last_emote = emote_id
-            if self._loop_task:
-                self._loop_task.cancel()
-            async def loop_emote():
-                while self._looping:
-                    await self.bot.highrise.send_emote(emote_id)
-                    await asyncio.sleep(2.5)
-            self._loop_task = asyncio.create_task(loop_emote())
-            await self.bot.highrise.chat(f"Looping emote '{emote_id}'. Use !emote stop loop to stop.")
-            return
-        # Emote by number
-        emote_id = args[0]
-        if emote_id.isdigit():
-            idx = int(emote_id) - 1
-            if 0 <= idx < len(emotes):
-                emote_id = emotes[idx]
+        if arg == 'stop':
+            task = self._emote_loop_tasks.pop(user.id, None)
+            if task:
+                task.cancel()
+                await self.bot.highrise.send_whisper(user.id, "Stopped emote loop.")
             else:
-                await self.bot.highrise.chat("Invalid emote number.")
-                return
-        elif emote_id not in emotes:
-            await self.bot.highrise.chat(f"Emote '{emote_id}' not found.")
+                await self.bot.highrise.send_whisper(user.id, "No emote loop running.")
             return
+        # Parse emote, loop, target, and interval
+        loop_mode = 'loop' in [a.lower() for a in args]
         target_user_id = None
-        if len(args) > 1 and args[1].startswith("@"):  # target user
-            username = args[1][1:]
-            users = await self.bot.highrise.get_room_users()
-            users = users.content
-            # users is a list of tuples (User, Position), so unpack User
-            for u in users:
-                user_obj = u[0] if isinstance(u, tuple) else u
-                if hasattr(user_obj, "username") and user_obj.username.lower() == username.lower():
-                    target_user_id = user_obj.id
-                    break
-            if not target_user_id:
-                await self.bot.highrise.chat(f"User {args[1]} not found in the room.")
-                return
-        await self.bot.highrise.send_emote(emote_id, target_user_id)
-        await self.bot.highrise.chat(f"Emote '{emote_id}' performed!" + (f" Target: {args[1]}" if target_user_id else ""))
+        interval = 3.5
+        for a in args:
+            if a.startswith('@'):
+                target_user_id = a[1:]
+            # Allow interval as a float argument
+            try:
+                val = float(a)
+                if 0.5 <= val <= 10:
+                    interval = val
+            except Exception:
+                pass
+        if not target_user_id:
+            target_user_id = user.id
+        emote_query = arg
+        if emote_query == 'loop':
+            emote_query = args[1] if len(args) > 1 else None
+        emote = self._find_emote(emote_query)
+        if not emote:
+            emote_id = emote_query
+            print(f"[EMOTE] Performing emote (not in list): {emote_id}")
+            if loop_mode:
+                task = self._emote_loop_tasks.pop(user.id, None)
+                if task:
+                    task.cancel()
+                loop_task = asyncio.create_task(self._emote_loop(user, emote_id, target_user_id, interval))
+                self._emote_loop_tasks[user.id] = loop_task
+                await self.bot.highrise.send_whisper(user.id, f"Started looping emote: {emote_id} (not in list) with interval {interval}s")
+            else:
+                await self.bot.highrise.send_emote(emote_id, target_user_id)
+                await self.bot.highrise.send_whisper(user.id, f"Performed emote: {emote_id} (not in list)")
+            return
+        emote_id = emote['id']
+        print(f"[EMOTE] Performing emote: {emote_id}")
+        if loop_mode:
+            # Stop previous loop if any
+            task = self._emote_loop_tasks.pop(user.id, None)
+            if task:
+                task.cancel()
+            loop_task = asyncio.create_task(self._emote_loop(user, emote_id, target_user_id, interval))
+            self._emote_loop_tasks[user.id] = loop_task
+            await self.bot.highrise.send_whisper(user.id, f"Started looping emote: {emote['name']} ({emote_id}) with interval {interval}s")
+        else:
+            await self.bot.highrise.send_emote(emote_id, target_user_id)
+            await self.bot.highrise.send_whisper(user.id, f"Performed emote: {emote['name']}")
