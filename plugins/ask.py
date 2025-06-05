@@ -35,6 +35,7 @@ class Command(CommandBase):
             logging.error(f"Error in ask command: {e}", exc_info=True)
 
     async def on_chat_handler(self, user, message):
+        print(f"DEBUG: on_chat_handler called with message: {message}")
         if "seb" in message.lower() or "sebastian" in message.lower():
             args = message.split()
             await self.execute(user, args, message)

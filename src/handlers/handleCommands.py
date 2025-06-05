@@ -88,6 +88,8 @@ class CommandHandler:
                 plugins_config = json.load(f)
         if os.path.isdir(plugins_dir):
             self._load_commands_from_dir(plugins_dir, module_prefix="plugins", is_plugin=True, plugins_config=plugins_config)
+        # Ensure bot.commands is a list of unique command/plugin instances (no duplicates for aliases)
+        self.bot.commands = list({id(cmd): cmd for cmd in self.commands.values()}.values())
 
     def _load_commands_from_dir(self, base_dir, module_prefix, is_plugin=False, plugins_config=None):
         for root, dirs, files in os.walk(base_dir):
