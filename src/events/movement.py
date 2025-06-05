@@ -74,3 +74,7 @@ async def on_move(bot, user: User, destination: Position | AnchorPosition) -> No
                 timeout_task_running = False
             asyncio.create_task(timeout_task())
         await bot.highrise.walk_to(dest)
+    # Dispatch to all plugin/command on_move handlers
+    for command in getattr(bot, 'commands', []):
+        for handler in getattr(command, 'get_handlers', lambda x: [])("on_move"):
+            await handler(user, destination)

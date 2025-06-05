@@ -7,3 +7,8 @@ async def on_leave(bot, user: User) -> None:
     if loggers.leave:
         logging.info(f"User Left: {user.username}:{user.id}")
     await bot.highrise.chat(f"{user.username} Left the room!")
+
+    # Dispatch to all plugin/command on_leave handlers
+    for command in getattr(bot, 'commands', []):
+        for handler in getattr(command, 'get_handlers', lambda x: [])("on_leave"):
+            await handler(user)

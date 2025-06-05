@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.6] - 2025-06-05
+### Added
+- Plugin/command event handler system: Commands can now register custom event handlers (e.g., on_chat) via CommandBase.
+- Event dispatcher (chat) now calls all registered on_chat handlers for loaded commands/plugins.
+
+### Changed
+- ask.py plugin updated to use the new handler system for chat-triggered AI responses.
+
+### Notes
+- This enables modular, event-driven plugin development for all future commands and plugins.
+
 ## [0.0.5] - 2025-06-05
 
 ### Added

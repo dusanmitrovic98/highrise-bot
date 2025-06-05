@@ -19,3 +19,7 @@ async def on_channel(bot, sender_id: str, message: str, tags: set[str]) -> None:
         logging.info(f"[GIVEAWAY] {sender_id} entered the giveaway via channel message.")
         # Optionally, send a private whisper to the user
         await bot.highrise.send_whisper(sender_id, "You have been entered into the giveaway!")
+    # Dispatch to all plugin/command on_channel handlers
+    for command in getattr(bot, 'commands', []):
+        for handler in getattr(command, 'get_handlers', lambda x: [])("on_channel"):
+            await handler(sender_id, message, tags)

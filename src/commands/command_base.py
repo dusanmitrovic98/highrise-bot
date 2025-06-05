@@ -55,6 +55,21 @@ class CommandBase(ABC):
         # Fallback: set name to plugin_name if not set
         if is_plugin and not self.name and plugin_name:
             self.name = plugin_name
+        self.handlers = {}
+
+    def add_handler(self, event_name, func):
+        """
+        Register a custom event handler for the command.
+        """
+        if event_name not in self.handlers:
+            self.handlers[event_name] = []
+        self.handlers[event_name].append(func)
+
+    def get_handlers(self, event_name):
+        """
+        Retrieve registered event handlers for the command.
+        """
+        return self.handlers.get(event_name, [])
 
     @abstractmethod
     async def execute(self, user: User, args: list, message: str):

@@ -18,3 +18,8 @@ async def on_start(bot, session_metadata: SessionMetadata) -> None:
     await bot.highrise.walk_to(Position(coords['x'], coords['y'], coords['z'], coords['facing']))
     await bot.highrise.chat(f"\n(RECONNECTED) {config.botName} is now ready.")
     await ask_bot(bot, None, "You were in your thoughts, on your phone or some other excuse. You look at people and apologize. Find some silly fun excuse!")
+
+    # Dispatch to all plugin/command on_start handlers
+    for command in getattr(bot, 'commands', []):
+        for handler in getattr(command, 'get_handlers', lambda x: [])("on_start"):
+            await handler(session_metadata)
