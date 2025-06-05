@@ -1,7 +1,9 @@
-from highrise.models import SessionMetadata, Position
 from config.config import config, loggers
+from highrise.models import Position, SessionMetadata
 from src.utility.ai import ask_bot
+
 from .dispatch_util import dispatch_event
+
 
 async def on_start(bot, session_metadata: SessionMetadata) -> None:
     """

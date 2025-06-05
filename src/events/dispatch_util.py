@@ -1,4 +1,3 @@
-# Utility to dispatch event handlers for all commands/plugins
 import inspect
 
 

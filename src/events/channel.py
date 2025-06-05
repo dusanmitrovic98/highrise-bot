@@ -1,5 +1,7 @@
 import logging
+
 from .dispatch_util import dispatch_event
+
 
 async def on_channel(bot, sender_id: str, message: str, tags: set[str]) -> None:
     """

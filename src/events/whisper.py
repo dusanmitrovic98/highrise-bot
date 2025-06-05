@@ -1,6 +1,8 @@
-from highrise.models import User
-from config.config import loggers, config
 import logging
+
+from config.config import config, loggers
+from highrise.models import User
+
 from .dispatch_util import dispatch_event
 
 

@@ -1,7 +1,10 @@
-from highrise.models import User
-from config.config import loggers
 import logging
+
+from config.config import loggers
+from highrise.models import User
+
 from .dispatch_util import dispatch_event
+
 
 async def on_emote(bot, user: User, emote_id: str, receiver: User) -> None:
     if loggers.emotes:

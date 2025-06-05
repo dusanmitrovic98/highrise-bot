@@ -7,6 +7,8 @@ from src.commands.command_base import CommandBase
 from highrise.models import User
 from config.config import config
 
+timeout_task_running = False
+
 def calculate_follow_position(user_pos, bot_pos, distance):
     if not user_pos or not hasattr(user_pos, 'x') or not hasattr(user_pos, 'z'):
         return user_pos  # fallback: go directly to user
@@ -27,6 +29,7 @@ def calculate_follow_position(user_pos, bot_pos, distance):
 class Command(CommandBase):
     def __init__(self, bot):
         super().__init__(bot)
+        self.add_handler("on_move", self.on_move_handler)
 
     async def execute(self, user: User, args: list, message: str):
         # Permission is now handled in the handler, no need to check here
@@ -198,7 +201,7 @@ class Command(CommandBase):
         # Send feedback to the command issuer
         # await self.bot.highrise.send_whisper(user.id, f"Following {target_username} (id: {target_user_id}). Bot will move to their coordinates when they move. [distance={follow_action.distance}, timeout={follow_action.timeout}, enabled={follow_action.enabled}]")
 
-    async def on_follow_handler(bot, user: User, destination: Position | AnchorPosition):
+    async def on_move_handler(self, user: User, destination: Position | AnchorPosition):
         """
         Handler for follow command.
         :param bot: The bot instance.
@@ -216,9 +219,9 @@ class Command(CommandBase):
                     distance = None
             # Get bot's current position
             bot_user = None
-            response = await bot.highrise.get_room_users()
+            response = await self.bot.highrise.get_room_users()
             for content in response.content:
-                if content[0].id == bot.highrise.my_id:
+                if content[0].id == self.bot.highrise.my_id:
                     bot_user = content[1] if len(content) > 1 else None
                     break
             # from src.commands.moderation.follow import calculate_follow_position
@@ -265,8 +268,8 @@ class Command(CommandBase):
                     if live_follow_action.enabled and live_follow_action.timeout == 0:
                         live_follow_action.enabled = False
                         set_section('actions', configsection_to_dict(live_config.actions))
-                        await bot.highrise.send_whisper(live_follow_action.id, f"@{live_follow_action.name} I am tired..")
+                        await self.bot.highrise.send_whisper(live_follow_action.id, f"@{live_follow_action.name} I am tired..")
                     global timeout_task_running
                     timeout_task_running = False
                 asyncio.create_task(timeout_task())
-            await bot.highrise.walk_to(dest)
+            await self.bot.highrise.walk_to(dest)
