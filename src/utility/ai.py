@@ -1,5 +1,4 @@
 import json
-from pyexpat.errors import messages
 import requests
 
 from highrise import User
@@ -13,6 +12,7 @@ def chat(prompt):
     data = {
         "prompt": prompt
     }
+    print(f"DEBUG: Sending to AI server: url={url}, data={data}")  # Debug print
     fallback_message_ai = config.messages['fallback_message_ai']
     try:
         chat_response = fallback_message_ai
@@ -20,25 +20,22 @@ def chat(prompt):
         while True:
             iterations += 1
             response = requests.post(url, headers=headers, data=json.dumps(data))
+            print(f"DEBUG: AI server response: status={response.status_code}, body={response.text}")  # Debug print
             response.raise_for_status()
 
             if response.status_code != 200:
                 break
 
             chat_response = response.json().get("response", "")
-            
             if iterations >= 5:
                 chat_response = fallback_message_ai
                 break
             if len(chat_response) <= 255:
                 break 
-        
         chat_response = remove_chars_until_punctuation(chat_response)
-
         if not chat_response:
             chat_response = fallback_message_ai
         return chat_response.strip()
-    
     except requests.exceptions.RequestException as e:
         print(f"Error: {e}")
         return fallback_message_ai

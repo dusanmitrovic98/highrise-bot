@@ -1,9 +1,9 @@
-from highrise import User
-from config.config import config
-from src.utility.ai import chat
-from src.commands.command_base import CommandBase
 import logging
-import re
+
+from config.config import config
+from highrise import User
+from src.commands.command_base import CommandBase
+from src.utility.ai import chat
 
 class Command(CommandBase):
     """
@@ -25,18 +25,21 @@ class Command(CommandBase):
             users = users.content
             prefix = config.prefix
             question = message.replace(f"{prefix}{self.name}", "").strip()
-            await self.bot.highrise.chat("\n 🤔")
+            await self.bot.highrise.chat(self.get_setting("response_thinking_message", "\n 🤔"))
             response = chat(f"You can currently see these people {users}. And you can there also see their IDs, usernames and coordinates in this room. This prompt was asked by: {user.username}. {question}. On this question you MUST DIRECTLY ANSWER!")
-            # Normalize whitespace: replace multiple spaces (or any whitespace) with a single space
-            response = re.sub(r'\s+', ' ', response)
             await self.bot.highrise.chat(f"\n{response.strip()}")
         except Exception as e:
-            await self.bot.highrise.chat("Sorry, something went wrong with the AI response.")
+            await self.bot.highrise.chat(self.get_setting("error_message", "Sorry, something went wrong with the AI response."))
             logging.error(f"Error in ask command: {e}", exc_info=True)
 
-    async def on_chat_handler(self, user, message):
+    def on_chat_handler(self, user, message):
         print(f"DEBUG: on_chat_handler called with message: {message}")
+        prefix = config.prefix
+        # Only respond if not a direct command call (e.g., !ask ...)
+        if message.strip().lower().startswith(f"{prefix}{self.name}"):
+            return
         words = set(message.lower().split())
         if "seb" in words or "sebastian" in words:
             args = message.split()
-            await self.execute(user, args, message)
+            import asyncio
+            asyncio.create_task(self.execute(user, args, message))

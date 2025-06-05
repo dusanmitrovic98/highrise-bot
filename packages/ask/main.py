@@ -1,7 +1,8 @@
-from flask import Flask, request, jsonify
-from dotenv import load_dotenv
-from groq import Groq
 import os
+
+from dotenv import load_dotenv
+from flask import Flask, request, jsonify
+from groq import Groq
 
 from config.config import Config as config
 

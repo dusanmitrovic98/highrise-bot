@@ -1,0 +1,5 @@
+{
+  "ai_prompt_prefix": "You can currently see these people {users}. And you can there also see their IDs, usernames and coordinates in this room. This prompt was asked by: {username}. {question}. On this question you MUST DIRECTLY ANSWER!",
+  "response_thinking_message": "\n 🤔!",
+  "error_message": "Sorry, something went wrong with the AI response."
+}

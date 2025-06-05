@@ -13,13 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Event dispatcher (chat) now calls all registered on_chat handlers for loaded commands/plugins.
 - Plugin/command event handler system: Commands can now register custom event handlers (e.g., on_chat) via CommandBase.
 - Event dispatcher (chat, join, etc.) now calls all registered handlers for loaded commands/plugins.
+- Uses config-driven messages for thinking and error responses.
 
 ### Changed
 - ask.py plugin updated to use the new handler system for chat-triggered AI responses.
+- Streamlined ask plugin logic for clarity and maintainability.
 
 ### Fixed
 - Fixed event handler system so that `bot.commands` is always populated with all loaded commands and plugins.
 - Event-driven plugins (e.g., ask.py) now reliably receive events like chat, join, etc., even after reloads.
+- on_chat handler no longer responds to direct command calls (e.g., !ask ...), preventing double responses.
 
 ### Notes
 - This enables modular, event-driven plugin development for all future commands and plugins.

@@ -71,6 +71,30 @@ class CommandBase(ABC):
         """
         return self.handlers.get(event_name, [])
 
+    def get_setting(self, key, default=None):
+        # Determine if this is a plugin or command
+        file_path = getattr(self, '__module__', None)
+        is_plugin = False
+        if file_path and ('.plugins.' in file_path or file_path.startswith('plugins.')):
+            is_plugin = True
+        # For plugins, use the filename (module) as config name; for commands, use class name
+        if is_plugin and file_path:
+            plugin_name = file_path.split('.')[-1]
+            config_filename = f'{plugin_name}.json'
+        else:
+            config_filename = f'{self.__class__.__name__.lower()}.json'
+        if is_plugin:
+            config_path = os.path.join(os.path.dirname(__file__), '../../config/plugins', config_filename)
+        else:
+            config_path = os.path.join(os.path.dirname(__file__), '../../config/commands', config_filename)
+        config_path = os.path.normpath(config_path)
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                settings = json.load(f)
+            return settings.get(key, default)
+        except Exception:
+            return default
+
     @abstractmethod
     async def execute(self, user: User, args: list, message: str):
         """
