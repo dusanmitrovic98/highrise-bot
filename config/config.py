@@ -23,6 +23,9 @@ def set(key: str, value: Any):
     _save_config(_config)
 
 def get_section(section: str) -> Dict[str, Any]:
+    if section not in _config:
+        _config[section] = {}
+        _save_config(_config)
     return _config.get(section, {})
 
 def set_section(section: str, value: Dict[str, Any]):

@@ -1,8 +1,9 @@
 {
     "README": "This is a template configuration file. Please copy it to 'config.json' and fill in the required fields. Do not commit 'config.json' to version control it contains sensitive information. Same applies to 'config/permissions.template.json'.",
     "prefix": "!",
-    "botID": "",
-    "botName": "",
+    "bot_id": "",
+    "bot_name": "",
+    "owner_name": "",
     "coordinates": {
         "x": 8.5,
         "y": 0.6,

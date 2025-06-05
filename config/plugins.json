@@ -62,5 +62,12 @@
     "permissions": [],
     "aliases": [],
     "cooldown": 0
+  },
+  "portals": {
+    "name": "portals",
+    "description": "Save or remove portal locations (room name to room ID mappings). Usage: !portals save <name> <room_id>, !portals remove <name>",
+    "permissions": ["owner"],
+    "aliases": [],
+    "cooldown": 0
   }
 }

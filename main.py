@@ -81,8 +81,15 @@ class Bot(BaseBot):
 
 if __name__ == "__main__":
     load_dotenv()
+    flag_path = Path("runtime/flags/warp.flag")
     room_id = os.getenv("ROOM_ID")
     token = os.getenv("TOKEN")
+    # Check for warp.flag and use its value as room_id if present
+    if flag_path.exists():
+        portal_room_id = flag_path.read_text().strip()
+        if portal_room_id:
+            room_id = portal_room_id
+        flag_path.unlink()  # Remove flag for next time
     shutdown_flag = Path("shutdown.flag")
     # Always remove shutdown flag on startup
     if shutdown_flag.exists():
