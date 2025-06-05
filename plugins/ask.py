@@ -36,6 +36,7 @@ class Command(CommandBase):
 
     async def on_chat_handler(self, user, message):
         print(f"DEBUG: on_chat_handler called with message: {message}")
-        if "seb" in message.lower() or "sebastian" in message.lower():
+        words = set(message.lower().split())
+        if "seb" in words or "sebastian" in words:
             args = message.split()
             await self.execute(user, args, message)
