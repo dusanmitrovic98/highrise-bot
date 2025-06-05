@@ -96,12 +96,5 @@
     "permissions": ["owner"],
     "aliases": [],
     "cooldown": 0
-  },
-   "emote": {
-    "name": "emote",
-    "description": "Perform an emote.",
-    "permissions": [],
-    "aliases": [],
-    "cooldown": 0
   }
 }

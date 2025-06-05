@@ -4,7 +4,6 @@ import logging
 
 from src.utility.ai import ask_bot
 
-
 async def on_tip(bot, sender: User, receiver: User, tip: CurrencyItem | Item) -> None:
     if loggers.tips:
         logging.info(f"{sender.username} tipped {receiver.username} {tip.amount} {tip.type}!")

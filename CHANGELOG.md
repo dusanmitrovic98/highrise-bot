@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.0.5] - 2025-06-04
+## [0.0.5] - 2025-06-05
 
 ### Added
 - Added `!spawn` command: Owners can now set the bot's current position as the spawn point in `config.json` using the `!spawn` command. The command determines the bot's position by searching for its own user ID in the room and updates the spawn coordinates accordingly.
@@ -33,6 +33,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the `!spawn` command to use `get_room_users()` and `my_id` for determining the bot's position, ensuring compatibility with the current Highrise API.
 - Fixed teleport command.
 - All running plugin package subprocesses are now properly terminated on bot exit, crash, or kill (including Ctrl+C), preventing orphaned processes.
+
+### Removed
+- emote command
 
 ## [0.0.4] - 2025-06-03
 
