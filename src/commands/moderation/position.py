@@ -8,7 +8,6 @@ class Command(CommandBase):
         super().__init__(bot)
 
     async def execute(self, user: User, args: list, message: str):
-        # Permission is now handled in the handler, no need to check here
         prefix = config.prefix
         # Get the room users
         response = await self.bot.highrise.get_room_users()
@@ -17,32 +16,35 @@ class Command(CommandBase):
         # Extract the usernames in lowercase
         usernames = [user.username.lower() for user in users]
 
+        # If no argument, use the caller's username
+        if len(args) == 0:
+            username = user.username
         # Check if the specified user is in the room
-        if len(args) != 1:
-            await self.bot.highrise.send_whisper(user.id, f"{messages.invalidUsage.format(prefix=prefix, commandName='print',args=' @username')}")
-            return
-        # Check if the lowercase version of the username is in the list
-        elif args[0].startswith("@") and len(args[0]) > 1:
-            # extract the username by removing the "@" symbol
-            username = args[0][1:]
+        elif len(args) == 1:
+            if args[0].startswith("@") and len(args[0]) > 1:
+                # extract the username by removing the "@" symbol
+                username = args[0][1:]
+            else:
+                username = args[0]
+            if username.lower() not in usernames:
+                await self.bot.highrise.send_whisper(user.id, f"{messages.invalidPlayer.format(user=username)}")
+                return
         else:
-            username = args[0]
-        if username.lower() not in usernames:
-            await self.bot.highrise.send_whisper(user.id, f"{messages.invalidPlayer.format(user=username)}")
+            await self.bot.highrise.send_whisper(user.id, f"{messages.invalidUsage.format(prefix=prefix, commandName='print',args=' @username')}")
             return
 
         # Get the position of the specified user
         # Find the User object for the specified username
-        user = users[usernames.index(username.lower())]
+        user_obj = users[usernames.index(username.lower())]
         position = None
         for content in response.content:
-            if content[0].id == user.id:
+            if content[0].id == user_obj.id:
                 if isinstance(content[1], Position):
                     position = content[1]
-                    msg = f"@{user.username} is at ({position.x}x, {position.y}y, {position.z}z) facing '{position.facing}'"
+                    msg = f"@{user_obj.username} is at ({position.x}x, {position.y}y, {position.z}z) facing '{position.facing}'"
                 elif isinstance(content[1], AnchorPosition):
                     position = content[1]
-                    msg = f"@{user.username} is on entity: {position.entity_id} anchor: {position.anchor_ix}"
+                    msg = f"@{user_obj.username} is on entity: {position.entity_id} anchor: {position.anchor_ix}"
                 break
 
         # Print the user ID and position

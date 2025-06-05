@@ -1,7 +1,7 @@
 {
   "come": {
     "name": "come",
-    "description": "Teleport the bot to a player's position.",
+    "description": "Moves the bot to a player's position.",
     "permissions": ["owner"],
     "aliases": [],
     "cooldown": 0
@@ -31,7 +31,7 @@
     "name": "position",
     "description": "Display someone's position in the room.",
     "permissions": ["owner"],
-    "aliases": [],
+    "aliases": ["pos"],
     "cooldown": 0
   },
   "reboot": {
@@ -95,6 +95,20 @@
     "description": "Set the bot's current position as the spawn point.",
     "permissions": ["owner"],
     "aliases": [],
+    "cooldown": 0
+  },
+  "move": {
+    "name": "move",
+    "description": "Move the bot to a named location.",
+    "permissions": ["owner"],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "locations": {
+    "name": "locations",
+    "description": "Display, add or remove saved locations.",
+    "permissions": ["owner"],
+    "aliases": ["loc", "locs"],
     "cooldown": 0
   }
 }
