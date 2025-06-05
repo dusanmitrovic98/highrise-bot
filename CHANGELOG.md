@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - If multiple users are mentioned, spreads them horizontally from the first mentioned user's position.
   - Uses spawn position and facing from config if available.
   - Provides clear feedback messages for all cases.
+- Owner/admin users (with "*" permission) can now run any command, even if the command requires specific permissions.
+- !reload command now reloads both commands and permissions, so changes to permissions.json are applied without restart.
+- Removed all manual permission checks from command files; permission logic is now fully centralized.
+- Fixed bot startup crash due to method order in CommandHandler.
 
 ### Fixed
 - Fixed the `!spawn` command to use `get_room_users()` and `my_id` for determining the bot's position, ensuring compatibility with the current Highrise API.

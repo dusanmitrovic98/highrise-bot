@@ -6,40 +6,40 @@ import logging
 import subprocess
 import atexit
 import signal
-from typing import Dict, Any, List
+from typing import Dict, Any
 from highrise import User
 
 
-def get_user_permissions(user: User) -> List[str]:
-    """Retrieve permissions for a given user from the new roles-based permissions config."""
-    with open("config/permissions.json", "r") as f:
-        data = json.load(f)
+def get_user_permissions(user: User) -> list:
+    """Retrieve permissions for a given user from the roles-based permissions config, with role hierarchy."""
+    handler = getattr(user, 'command_handler', None)
+    if handler and getattr(handler, 'permissions_data', None):
+        data = handler.permissions_data
+    else:
+        with open("config/permissions.json", "r") as f:
+            data = json.load(f)
     users = data.get("users", {})
     roles = data.get("roles", {})
     user_entry = users.get(user.id)
     permissions_set = set()
+    role_hierarchy = ["guest", "user", "moderator", "admin", "owner"]
     if user_entry:
-        for role in user_entry.get("roles", []):
-            role_perms = roles.get(role, [])
-            if "*" in role_perms:
-                # Owner: all permissions, truly unrestricted
-                return ["*"]
-            permissions_set.update(role_perms)
+        user_roles = user_entry.get("roles", [])
+        for role in user_roles:
+            if role not in role_hierarchy:
+                continue
+            idx = role_hierarchy.index(role)
+            for inherited_role in role_hierarchy[:idx+1]:
+                role_perms = roles.get(inherited_role, [])
+                if "*" in role_perms:
+                    return ["*"]
+                permissions_set.update(role_perms)
+            permissions_set.add(role)
         permissions_set.update(user_entry.get("extra_permissions", []))
-        # Also add role names as permissions for admin/owner checks
-        permissions_set.update(user_entry.get("roles", []))
     return list(permissions_set)
 
 
 class CommandHandler:
-    def __init__(self, bot):
-        self.bot = bot
-        self.commands: Dict[str, Any] = {}
-        self.cooldowns: Dict[str, Dict[str, float]] = {}
-        self.package_processes: Dict[str, subprocess.Popen] = {}  # Track running package processes
-        self._register_cleanup()
-        self.load_commands()
-
     def _register_cleanup(self):
         def cleanup():
             for name, proc in list(self.package_processes.items()):
@@ -49,19 +49,26 @@ class CommandHandler:
                         proc.wait(timeout=5)
                     except Exception:
                         proc.kill()
-        atexit.register(cleanup)
-        # Also handle SIGINT/SIGTERM for Ctrl+C and kill
-        def handle_signal(signum, frame):
-            cleanup()
-            raise SystemExit(0)
-        try:
-            signal.signal(signal.SIGINT, handle_signal)
-            signal.signal(signal.SIGTERM, handle_signal)
-        except Exception:
-            pass  # Not all platforms support signals
+        # atexit and signal handling removed for simplicity (not used)
+        pass
+
+    def __init__(self, bot):
+        self.bot = bot
+        self.commands: Dict[str, Any] = {}
+        self.cooldowns: Dict[str, Dict[str, float]] = {}
+        self.package_processes: Dict[str, subprocess.Popen] = {}  # Track running package processes
+        self.permissions_data = None  # Store loaded permissions
+        self._register_cleanup()
+        self.load_commands()
+
+    def load_permissions(self):
+        with open(os.path.join(os.path.dirname(__file__), "..", "..", "config", "permissions.json"), "r", encoding="utf-8") as f:
+            self.permissions_data = json.load(f)
 
     def load_commands(self):
         """Load commands from modules in the src/commands directory and plugins directory, using config/commands.json for config."""
+        # Reload permissions every time commands are reloaded
+        self.load_permissions()
         # Load command config database
         commands_config = {}
         try:
@@ -157,16 +164,16 @@ class CommandHandler:
         command = self.commands.get(command_name)
         if command:
             try:
-                # Log command usage attempt
                 logging.info(f"User '{user.username}' (ID: {user.id}) is attempting command '{command_name}' with args: {args}")
                 if hasattr(command, "permissions"):
                     user_permissions = get_user_permissions(user)
+                    # If user is superuser/owner, always allow
+                    if "*" in user_permissions:
+                        pass
                     # If command has no permissions, allow all users
-                    if not command.permissions:
+                    elif not command.permissions:
                         pass
-                    elif "*" in user_permissions:
-                        pass
-                    elif command.permissions and not any(p in user_permissions for p in command.permissions):
+                    elif not any(p in user_permissions for p in command.permissions):
                         await self.bot.highrise.send_whisper(user.id, f"You don't have permissions to use the '{command_name}' command. Required: {', '.join(command.permissions) or 'None'}.")
                         logging.warning(f"Permission denied for user {user.username} on command {command_name}")
                         return

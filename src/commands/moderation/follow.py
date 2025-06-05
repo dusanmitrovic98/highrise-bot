@@ -1,7 +1,6 @@
 import math
 
 from src.commands.command_base import CommandBase
-from src.handlers.handleCommands import get_user_permissions
 from highrise.models import User
 from config.config import config
 
@@ -27,11 +26,7 @@ class Command(CommandBase):
         super().__init__(bot)
 
     async def execute(self, user: User, args: list, message: str):
-        user_permissions = get_user_permissions(user)
-        # Only allow owners
-        if not ("*" in user_permissions or "owner" in user_permissions):
-            await self.bot.highrise.send_whisper(user.id, "You do not have permission to use the follow command.")
-            return
+        # Permission is now handled in the handler, no need to check here
         # Parse arguments as key=value pairs, all optional (e.g., @username distance=1.0 timeout=30)
         target_user_id = user.id
         target_username = user.username

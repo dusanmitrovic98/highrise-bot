@@ -51,7 +51,7 @@
   "shutdown": {
     "name": "shutdown",
     "description": "Shut down the bot.",
-    "permissions": ["owner", "admin"],
+    "permissions": ["owner"],
     "aliases": [],
     "cooldown": 0
   },

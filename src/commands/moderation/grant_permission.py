@@ -3,7 +3,6 @@ from highrise import User
 from config.config import config
 from src.utility.utility import load_permissions, save_permissions
 from src.commands.command_base import CommandBase
-from src.handlers.handleCommands import get_user_permissions
 
 INVALID_COMMAND_MESSAGE = "Invalid command format. Use /grant_permission @username permission OR /grant_role @username role"
 USER_NOT_FOUND_MESSAGE = "User {username} not found."
@@ -21,11 +20,7 @@ class Command(CommandBase):
         super().__init__(bot)
 
     async def execute(self, user: User, args: list, message: str):
-        user_permissions = get_user_permissions(user)
-        # Allow if user has '*' (owner), 'admin', or 'owner' in permissions
-        if not ("*" in user_permissions or "admin" in user_permissions or "owner" in user_permissions):
-            await self.bot.highrise.send_whisper(user.id, "You do not have permission to grant or revoke permissions/roles.")
-            return
+        # Permission is now handled in the handler, no need to check here
         # Grant permission
         match = PERMISSION_PATTERN.match(message.strip())
         if match:
