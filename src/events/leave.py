@@ -1,6 +1,7 @@
 from highrise.models import User
 from config.config import loggers
 import logging
+from .dispatch_util import dispatch_event
 
 
 async def on_leave(bot, user: User) -> None:
@@ -9,6 +10,4 @@ async def on_leave(bot, user: User) -> None:
     await bot.highrise.chat(f"{user.username} Left the room!")
 
     # Dispatch to all plugin/command on_leave handlers
-    for command in getattr(bot, 'commands', []):
-        for handler in getattr(command, 'get_handlers', lambda x: [])("on_leave"):
-            await handler(user)
+    await dispatch_event(bot, "on_leave", user)

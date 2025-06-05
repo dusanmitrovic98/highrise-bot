@@ -1,5 +1,6 @@
 import logging
 from quattro import TaskGroup
+from .dispatch_util import dispatch_event
 
 async def before_start(bot, tg: TaskGroup) -> None:
     """
@@ -12,6 +13,4 @@ async def before_start(bot, tg: TaskGroup) -> None:
     # tg.create_task(your_background_task())
 
     # Dispatch to all plugin/command before_start handlers
-    for command in getattr(bot, 'commands', []):
-        for handler in getattr(command, 'get_handlers', lambda x: [])("before_start"):
-            await handler(tg)
+    await dispatch_event(bot, "before_start", tg)

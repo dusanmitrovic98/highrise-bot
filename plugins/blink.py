@@ -12,7 +12,6 @@ class Command(CommandBase):
         # Map usernames to (User, Position)
         user_map = {content[0].username.lower(): (content[0], content[1]) for content in response.content}
         usernames = list(user_map.keys())
-
         # Default values
         target_user = user
         blink_distance = 1.0

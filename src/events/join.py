@@ -1,6 +1,7 @@
 from highrise.models import User
 from config.config import loggers
 import logging
+from .dispatch_util import dispatch_event
 
 
 async def on_join(bot, user: User) -> None:
@@ -9,6 +10,4 @@ async def on_join(bot, user: User) -> None:
     await bot.highrise.chat(f"{user.username} Joined the room!")
 
     # Dispatch to all plugin/command on_join handlers
-    for command in getattr(bot, 'commands', []):
-        for handler in getattr(command, 'get_handlers', lambda x: [])("on_join"):
-            await handler(user)
+    await dispatch_event(bot, "on_join", user)

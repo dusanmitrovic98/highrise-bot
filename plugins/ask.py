@@ -1,7 +1,7 @@
 import logging
 
-from config.config import config
 from highrise import User
+from config.config import config
 from src.commands.command_base import CommandBase
 from src.utility.ai import chat
 
@@ -32,8 +32,8 @@ class Command(CommandBase):
             await self.bot.highrise.chat(self.get_setting("error_message", "Sorry, something went wrong with the AI response."))
             logging.error(f"Error in ask command: {e}", exc_info=True)
 
-    def on_chat_handler(self, user, message):
-        print(f"DEBUG: on_chat_handler called with message: {message}")
+    def on_chat_handler(self, user: User, message: str):
+        logging.debug(f"on_chat_handler called with message: {message}")
         prefix = config.prefix
         # Only respond if not a direct command call (e.g., !ask ...)
         if message.strip().lower().startswith(f"{prefix}{self.name}"):

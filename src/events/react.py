@@ -1,6 +1,7 @@
 from highrise.models import User, Reaction
 from config.config import loggers
 import logging
+from .dispatch_util import dispatch_event
 
 
 async def on_reaction(bot, user: User, reaction: Reaction, receiver: User) -> None:
@@ -8,6 +9,4 @@ async def on_reaction(bot, user: User, reaction: Reaction, receiver: User) -> No
         logging.info(f"{user.username} send {reaction} to {receiver.username}")
 
     # Dispatch to all plugin/command on_reaction handlers
-    for command in getattr(bot, 'commands', []):
-        for handler in getattr(command, 'get_handlers', lambda x: [])("on_reaction"):
-            await handler(user, reaction, receiver)
+    await dispatch_event(bot, "on_reaction", user, reaction, receiver)

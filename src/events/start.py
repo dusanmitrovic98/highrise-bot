@@ -1,6 +1,7 @@
 from highrise.models import SessionMetadata, Position
 from config.config import config, loggers
 from src.utility.ai import ask_bot
+from .dispatch_util import dispatch_event
 
 async def on_start(bot, session_metadata: SessionMetadata) -> None:
     """
@@ -20,6 +21,4 @@ async def on_start(bot, session_metadata: SessionMetadata) -> None:
     await ask_bot(bot, None, "You were in your thoughts, on your phone or some other excuse. You look at people and apologize. Find some silly fun excuse!")
 
     # Dispatch to all plugin/command on_start handlers
-    for command in getattr(bot, 'commands', []):
-        for handler in getattr(command, 'get_handlers', lambda x: [])("on_start"):
-            await handler(session_metadata)
+    await dispatch_event(bot, "on_start", session_metadata)
