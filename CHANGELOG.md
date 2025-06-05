@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed the `!spawn` command to use `get_room_users()` and `my_id` for determining the bot's position, ensuring compatibility with the current Highrise API.
 - Fixed teleport command.
+- All running plugin package subprocesses are now properly terminated on bot exit, crash, or kill (including Ctrl+C), preventing orphaned processes.
 
 ## [0.0.4] - 2025-06-03
 

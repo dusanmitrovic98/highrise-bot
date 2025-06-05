@@ -4,6 +4,8 @@ import json
 import time
 import logging
 import subprocess
+import atexit
+import signal
 from typing import Dict, Any, List
 from highrise import User
 
@@ -35,7 +37,28 @@ class CommandHandler:
         self.commands: Dict[str, Any] = {}
         self.cooldowns: Dict[str, Dict[str, float]] = {}
         self.package_processes: Dict[str, subprocess.Popen] = {}  # Track running package processes
+        self._register_cleanup()
         self.load_commands()
+
+    def _register_cleanup(self):
+        def cleanup():
+            for name, proc in list(self.package_processes.items()):
+                if proc.poll() is None:
+                    try:
+                        proc.terminate()
+                        proc.wait(timeout=5)
+                    except Exception:
+                        proc.kill()
+        atexit.register(cleanup)
+        # Also handle SIGINT/SIGTERM for Ctrl+C and kill
+        def handle_signal(signum, frame):
+            cleanup()
+            raise SystemExit(0)
+        try:
+            signal.signal(signal.SIGINT, handle_signal)
+            signal.signal(signal.SIGTERM, handle_signal)
+        except Exception:
+            pass  # Not all platforms support signals
 
     def load_commands(self):
         """Load commands from modules in the src/commands directory and plugins directory, using config/commands.json for config."""
