@@ -19,7 +19,7 @@ async def on_start(bot, session_metadata: SessionMetadata) -> None:
 
     coords = config.spawn
     await bot.highrise.walk_to(Position(coords['x'], coords['y'], coords['z'], coords['facing']))
-    await bot.highrise.chat(f"\n(RECONNECTED) {config.botName} is now ready.")
+    await bot.highrise.chat(f"\n(RECONNECTED) {config.bot_name} is now ready.")
     await ask_bot(bot, None, "You were in your thoughts, on your phone or some other excuse. You look at people and apologize. Find some silly fun excuse!")
 
     # Dispatch to all plugin/command on_start handlers
