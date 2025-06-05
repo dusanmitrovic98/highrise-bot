@@ -3,71 +3,15 @@
         "owner": [
             "*"
         ],
-        "admin": [
-            "say",
-            "emote",
-            "teleport",
-            "summon",
-            "come",
-            "grant_permission",
-            "reload",
-            "reset",
-            "shutdown",
-            "whoami",
-            "wallet",
-            "help"
-        ],
-        "moderator": [
-            "say",
-            "emote",
-            "teleport",
-            "summon",
-            "come",
-            "grant_permission",
-            "whoami",
-            "wallet",
-            "help"
-        ],
-        "user": [
-            "say",
-            "emote",
-            "whoami",
-            "wallet",
-            "help"
-        ],
-        "guest": [
-            "whoami",
-            "help"
-        ]
+        "admin": [],
+        "moderator": [],
+        "user": [],
+        "guest": []
     },
     "users": {
         "example_owner_id": {
             "roles": [
                 "owner"
-            ],
-            "extra_permissions": []
-        },
-        "example_admin_id": {
-            "roles": [
-                "admin"
-            ],
-            "extra_permissions": []
-        },
-        "example_moderator_id": {
-            "roles": [
-                "moderator"
-            ],
-            "extra_permissions": []
-        },
-        "example_user_id": {
-            "roles": [
-                "user"
-            ],
-            "extra_permissions": []
-        },
-        "example_guest_id": {
-            "roles": [
-                "guest"
             ],
             "extra_permissions": []
         }
