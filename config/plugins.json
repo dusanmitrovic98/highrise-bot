@@ -5,7 +5,10 @@
     "permissions": [],
     "aliases": [],
     "cooldown": 0,
-    "package": "packages/ask"
+    "is_package": true,
+    "package": "packages/ask",
+    "version": "0.0.1",
+    "port": 1234
   },
   "blink": {
     "name": "blink",

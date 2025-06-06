@@ -8,6 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.0.11] - 2025-06-06
+
+### Added
+- Automatic registration of package ports in `runtime/ports/register.json` using port values from `plugins.json` or `commands.json`.
+- `get_package_port` and `register_package_port` methods in `CommandHandler` for unified port lookup and registration.
+- On package process start, the port is now always registered automatically.
+
+### Changed
+- Shutdown, reboot, and crash commands now:
+  - Kill only valid, nonzero PIDs (skip PID 0) when cleaning up port-bound processes.
+  - Clean up the port registry only for ports that are no longer in use.
+  - Handle empty or invalid `register.json` gracefully to prevent startup errors.
+
+### Fixed
+- Prevented repeated errors when attempting to kill PID 0 (system process) during shutdown.
+- Ensured all package subprocesses and port-bound processes are reliably terminated on shutdown, reboot, or crash.
 
 ## [v0.0.10] - 2025-06-06
 

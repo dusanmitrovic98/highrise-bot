@@ -14,4 +14,8 @@ class Command(CommandBase):
             await self.bot.highrise.send_whisper(user.id, "You do not have permission to reset the bot.")
             return
         await self.bot.highrise.chat("Bot is restarting by admin command.")
+        # Kill processes by registered ports, terminate packages, and clean up port registry before exiting
+        self.bot.command_handler.kill_processes_by_registered_ports()
+        self.bot.command_handler.terminate_all_packages()
+        self.bot.command_handler.cleanup_ports_registry()
         os._exit(0)

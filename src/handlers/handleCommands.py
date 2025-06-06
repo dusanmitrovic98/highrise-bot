@@ -146,6 +146,8 @@ class CommandHandler:
                                 proc = subprocess.Popen(['python', abs_main_py], creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
                                 self.package_processes[command_name] = proc
                                 logging.info(f"Started package process for {command_name}: {abs_main_py}")
+                                # Register the package port after starting
+                                self.register_package_port(command_name)
                             else:
                                 logging.warning(f"Package main.py not found for {command_name} at {abs_main_py}")
                     # --- END PACKAGE MANAGEMENT LOGIC ---
@@ -197,6 +199,121 @@ class CommandHandler:
                 tb = traceback.format_exc()
                 await self.bot.highrise.send_whisper(user.id, f"An error occurred while executing '{command_name}'. Please check your command usage or try again later.")
                 logging.error(f"Error executing command '{command_name}' for user '{user.username}' (ID: {user.id}) with args {args}: {e}\n{tb}")
+
+    def terminate_all_packages(self):
+        """Terminate all running package processes."""
+        for name, proc in list(self.package_processes.items()):
+            if proc.poll() is None:
+                try:
+                    proc.terminate()
+                    proc.wait(timeout=5)
+                except Exception:
+                    proc.kill()
+            del self.package_processes[name]
+
+    def cleanup_ports_registry(self):
+        """Remove registered ports from runtime/ports/register.json only if the port is not in use."""
+        import json
+        import os
+        import socket
+        register_path = os.path.join("runtime", "ports", "register.json")
+        if os.path.exists(register_path):
+            try:
+                with open(register_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                # Only keep ports that are still in use
+                ports_to_keep = {}
+                for key, port in data.items():
+                    try:
+                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        sock.settimeout(0.5)
+                        result = sock.connect_ex(("127.0.0.1", int(port)))
+                        sock.close()
+                        if result == 0:
+                            # Port is still open, keep it
+                            ports_to_keep[key] = port
+                    except Exception:
+                        # If error, assume port is not in use and remove
+                        pass
+                with open(register_path, "w", encoding="utf-8") as f:
+                    json.dump(ports_to_keep, f, indent=2)
+            except Exception as e:
+                import logging
+                logging.error(f"Failed to clean up ports registry: {e}")
+
+    def kill_processes_by_registered_ports(self):
+        """Find and kill any process using ports registered in runtime/ports/register.json (Windows only)."""
+        import os
+        import json
+        import subprocess
+        register_path = os.path.join("runtime", "ports", "register.json")
+        if not os.path.exists(register_path):
+            return
+        try:
+            with open(register_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            ports = list(data.values()) if isinstance(data, dict) else []
+            for port in ports:
+                # Find PID using netstat
+                try:
+                    result = subprocess.check_output(f'netstat -ano | findstr :{port}', shell=True, text=True)
+                    for line in result.strip().splitlines():
+                        parts = line.split()
+                        if len(parts) >= 5:
+                            pid = parts[-1]
+                            if pid.isdigit() and int(pid) > 0:
+                                subprocess.run(["taskkill", "/PID", pid, "/F"], shell=True)
+                except Exception as e:
+                    import logging
+                    logging.error(f"Failed to kill process on port {port}: {e}")
+        except Exception as e:
+            import logging
+            logging.error(f"Failed to process ports registry for killing: {e}")
+
+    def get_package_port(self, package_name):
+        """Get the port for a package from plugins.json or commands.json."""
+        import os
+        import json
+        plugins_path = os.path.join("config", "plugins.json")
+        commands_path = os.path.join("config", "commands.json")
+        # Try plugins.json first
+        if os.path.exists(plugins_path):
+            with open(plugins_path, "r", encoding="utf-8") as f:
+                plugins = json.load(f)
+            if package_name in plugins and "port" in plugins[package_name]:
+                return plugins[package_name]["port"]
+        # Fallback to commands.json
+        if os.path.exists(commands_path):
+            with open(commands_path, "r", encoding="utf-8") as f:
+                commands = json.load(f)
+            if package_name in commands and "port" in commands[package_name]:
+                return commands[package_name]["port"]
+        return None
+
+    def register_package_port(self, package_name):
+        """Register the package's port in runtime/ports/register.json using the port from plugins.json or commands.json."""
+        import os
+        import json
+        register_path = os.path.join("runtime", "ports", "register.json")
+        port = self.get_package_port(package_name)
+        if port is None:
+            return
+        os.makedirs(os.path.dirname(register_path), exist_ok=True)
+        try:
+            if os.path.exists(register_path):
+                try:
+                    with open(register_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                except Exception:
+                    data = {}
+            else:
+                data = {}
+            data[package_name] = port
+            with open(register_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
+        except Exception as e:
+            import logging
+            logging.error(f"Failed to register port for {package_name}: {e}")
 
 # Placeholder for future external logging (e.g., to a database or HTTP endpoint)
 def log_to_external_service(event_type: str, data: dict):
