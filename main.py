@@ -72,7 +72,13 @@ class Bot(BaseBot):
     async def _ghost_loop(self, user_id: str):
         try:
             while True:
-                await self.highrise.send_emote("emote-ghost-idle", user_id)
+                try:
+                    await self.highrise.send_emote("emote-ghost-idle", user_id)
+                except Exception as e:
+                    # Stop loop if user is not in room
+                    if hasattr(e, 'args') and e.args and 'Target user not in room' in str(e.args[0]):
+                        break
+                    raise
                 await asyncio.sleep(2.6)
         except asyncio.CancelledError:
             pass
@@ -84,6 +90,10 @@ class Bot(BaseBot):
         await handle_join(self, user)
 
     async def on_user_leave(self, user: User) -> None:
+        user_id = user.id
+        # Cancel ghost loop if running
+        if user_id in self.ghost_loops and not self.ghost_loops[user_id].done():
+            self.ghost_loops[user_id].cancel()
         await handle_leave(self, user)
 
     async def on_emote(self, user: User, emote_id: str, receiver: User | None) -> None:
