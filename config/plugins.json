@@ -93,5 +93,12 @@
     "permissions": [],
     "aliases": [],
     "cooldown": 0
+  },
+  "wardrobe": {
+    "name": "wardrobe",
+    "description": "Manage and list saved outfits. Usage: !wardrobe, !wardrobe save <name>, !wardrobe remove <name>",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
   }
 }

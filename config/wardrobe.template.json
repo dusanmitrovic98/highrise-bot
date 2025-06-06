@@ -1,0 +1,60 @@
+{
+  "lildevil": [
+    {
+      "type": "clothing",
+      "amount": 1,
+      "id": "body-flesh",
+      "account_bound": false,
+      "active_palette": 24
+    },
+    {
+      "type": "clothing",
+      "amount": 1,
+      "id": "mouth-n_aprilfoolsinvisible2020mouth",
+      "account_bound": false,
+      "active_palette": 18
+    },
+    {
+      "type": "clothing",
+      "amount": 1,
+      "id": "fullsuit-monsterbubblegrab2020goat",
+      "account_bound": false,
+      "active_palette": 0
+    },
+    {
+      "type": "clothing",
+      "amount": 1,
+      "id": "shoes-n_room12019sneakersblack",
+      "account_bound": false,
+      "active_palette": 0
+    },
+    {
+      "type": "clothing",
+      "amount": 1,
+      "id": "eye-n_registrationavatars2023demongirleyes",
+      "account_bound": false,
+      "active_palette": 7
+    },
+    {
+      "type": "clothing",
+      "amount": 1,
+      "id": "eyebrow-halloweenskypass2021lightbrows",
+      "account_bound": false,
+      "active_palette": 1
+    },
+    {
+      "type": "clothing",
+      "amount": 1,
+      "id": "nose-n_01",
+      "account_bound": false,
+      "active_palette": 0
+    },
+    {
+      "type": "clothing",
+      "amount": 1,
+      "id": "bag-n_registrationavatars2023demonwings",
+      "account_bound": false,
+      "active_palette": 0
+    }
+  ]
+}

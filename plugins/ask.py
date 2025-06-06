@@ -39,7 +39,10 @@ class Command(CommandBase):
         if message.strip().lower().startswith(f"{prefix}{self.name}"):
             return
         words = set(message.lower().split())
-        if "seb" in words or "sebastian" in words:
-            args = message.split()
-            import asyncio
-            asyncio.create_task(self.execute(user, args, message))
+        words = ["seb", "sebastian"]
+        for word in words:
+            if word in message.lower():
+                logging.debug(f"Detected keyword '{word}' in message: {message}")
+                args = message.split()
+                import asyncio
+                asyncio.create_task(self.execute(user, args, message))

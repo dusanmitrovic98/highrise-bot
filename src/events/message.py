@@ -29,7 +29,14 @@ async def handle_dm_subscribe(bot, user_id, username, conversation_id):
 
 async def handle_dm_opening(bot, user_id, username, conversation_id):
     await register_or_update_user(user_id, username)
-    await bot.highrise.send_message(conversation_id, "DM opened. Your role is 'guest'.")
+    guide_url = "https://github.com/dusanmitrovic98/highrise-bot/blob/main/GUIDE.md"
+    welcome_message = (
+        "Welcome!\n\nFor help and usage instructions, please see the next message for our official guide link.\n\n"
+        "⚠️ Security Notice: Only open links from trusted sources. By clicking any link, you acknowledge you are doing so at your own risk.\n"
+        "The GUIDE is a markdown (.md) file on GitHub—this link is safe to open."
+    )
+    await bot.highrise.send_message(conversation_id, welcome_message)
+    await bot.highrise.send_message(conversation_id, guide_url)
 
 async def on_message(bot, user_id: str, conversation_id: str, is_new_conversation: bool) -> None:
     logging.info(f"[DEBUG] on_message handler called: user_id={user_id}, conversation_id={conversation_id}, is_new={is_new_conversation}")
@@ -44,7 +51,25 @@ async def on_message(bot, user_id: str, conversation_id: str, is_new_conversatio
                     break
     except Exception:
         pass
-    # Register/update user on every DM
+    # Load users.json to check if user exists
+    if USERS_PATH.exists():
+        with open(USERS_PATH, "r", encoding="utf-8") as f:
+            users_data = json.load(f)
+    else:
+        users_data = {"users": {}}
+    user_exists = user_id in users_data["users"]
+    # If user does not exist, register and send onboarding
+    if not user_exists:
+        await handle_dm_opening(bot, user_id, username, conversation_id)
+        users_data["users"][user_id] = {
+            "username": username,
+            "roles": ["guest"],
+            "extra_permissions": []
+        }
+        with open(USERS_PATH, "w", encoding="utf-8") as f:
+            json.dump(users_data, f, indent=4)
+        return
+    # Register/update user on every DM if username is available
     if username:
         await register_or_update_user(user_id, username)
     # Check for !subscribe command
@@ -53,11 +78,6 @@ async def on_message(bot, user_id: str, conversation_id: str, is_new_conversatio
     else:
         last_dm_users = set()
         bot.last_dm_users = last_dm_users
-    # Opening message if first DM
-    if user_id not in last_dm_users:
-        await handle_dm_opening(bot, user_id, username, conversation_id)
-        last_dm_users.add(user_id)
-        return
     # Handle !subscribe
     messages = await bot.highrise.get_messages(conversation_id)
     if hasattr(messages, "messages") and messages.messages:
@@ -65,8 +85,5 @@ async def on_message(bot, user_id: str, conversation_id: str, is_new_conversatio
         if last_message.content.strip().lower() == "!subscribe":
             await handle_dm_subscribe(bot, user_id, username, conversation_id)
             return
-    # Otherwise, normal DM log
-        if hasattr(messages, "messages") and messages.messages:
-            last_message = messages.messages[-1]
-            logging.info(f"(dm) {user_id}: {last_message.content}")
+        logging.info(f"(dm) {user_id}: {last_message.content}")
     await dispatch_event(bot, "on_message", user_id, conversation_id, is_new_conversation)

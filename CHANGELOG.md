@@ -8,7 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.17] - 2025-06-06
+
+### Added
+- New `wardrobe` plugin: manage and list saved outfits for the bot.
+  - `!wardrobe` and `!wardrobe open` both list all saved outfits.
+  - `!wardrobe save <name>` saves the bot's current outfit under the given name.
+  - `!wardrobe remove <name>` removes a saved outfit by name.
+
+### Fixed
+- Outfit saving now serializes all items using `attrs.asdict` to ensure JSON compatibility.
+
 ## [0.0.16] - 2025-06-06
+
 ### Changed
 - Changed the !spawn command to save the position of the user who invoked the command as the spawn point in config.json, instead of saving the bot's position.
 

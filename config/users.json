@@ -1,7 +1,28 @@
 {
     "users": {
+        "60e4d156ade36479457a97de": {
+            "username": "Semmey",
+            "roles": [
+                "owner"
+            ],
+            "extra_permissions": []
+        },
         "6807a86ebcff1952758703b3": {
             "username": "dule98",
+            "roles": [
+                "owner"
+            ],
+            "extra_permissions": []
+        },
+        "6716f148931261715ef7aa02": {
+            "username": "iioijasonlol",
+            "roles": [
+                "guest"
+            ],
+            "extra_permissions": []
+        },
+        "678d8a49fa40fcfd34d0221d": {
+            "username": "Boogio",
             "roles": [
                 "guest"
             ],
