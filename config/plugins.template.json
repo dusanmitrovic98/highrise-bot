@@ -1,0 +1,24 @@
+{
+  "plugin_name_001": {
+    "name": "plugin_name_001",
+    "description": "Plugin description.",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0,
+    "is_package": true,
+    "package": "packages/plugin_name_001",
+    "version": "0.0.1",
+    "port": 5001
+  },
+  "plugin_name_002": {
+    "name": "plugin_name_002",
+    "description": "Plugin description.",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0,
+    "is_package": false,
+    "package": "",
+    "version": "0.0.1",
+    "port": null
+  }
+}

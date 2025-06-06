@@ -34,7 +34,7 @@ async def handle_dm_opening(bot, user_id, username, conversation_id):
 async def on_message(bot, user_id: str, conversation_id: str, is_new_conversation: bool) -> None:
     logging.info(f"[DEBUG] on_message handler called: user_id={user_id}, conversation_id={conversation_id}, is_new={is_new_conversation}")
     # Try to get username from room users or fallback to user_id
-    username = user_id
+    username = None
     try:
         users_resp = await bot.highrise.get_room_users()
         if hasattr(users_resp, 'content'):
@@ -45,7 +45,8 @@ async def on_message(bot, user_id: str, conversation_id: str, is_new_conversatio
     except Exception:
         pass
     # Register/update user on every DM
-    await register_or_update_user(user_id, username)
+    if username:
+        await register_or_update_user(user_id, username)
     # Check for !subscribe command
     if hasattr(bot, 'last_dm_users'):
         last_dm_users = bot.last_dm_users
