@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On package process start, the port is now always registered automatically.
 
 ### Changed
-- Shutdown, reboot, and crash commands now:
+- Shutdown, reboot, and crash commands now:v0.
   - Kill only valid, nonzero PIDs (skip PID 0) when cleaning up port-bound processes.
   - Clean up the port registry only for ports that are no longer in use.
   - Handle empty or invalid `register.json` gracefully to prevent startup errors.

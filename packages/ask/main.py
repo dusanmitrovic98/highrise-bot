@@ -49,4 +49,4 @@ def chat_v1():
     return create_chat_completion(messagesV1)
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=1234)
+    app.run(host='localhost', port=5001)
