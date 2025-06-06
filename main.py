@@ -1,5 +1,5 @@
 import os
-import time
+import asyncio
 from collections import namedtuple
 from pathlib import Path
 
@@ -41,22 +41,41 @@ class Bot(BaseBot):
         self.command_handler = CommandHandler(self)
         self.room_id = room_id
         self.token = token
+        self.ghost_loops = {}  # Track running ghost loops per user
         super().__init__()
 
     async def on_start(self, session_metadata: SessionMetadata) -> None:
         await handle_start(self, session_metadata)
         # Hardcoded conversation ID for testing
-        conversation_id = "1_on_1:66ab9e4865e341064df9df2b:6807a86ebcff1952758703b3"  # <-- replace with your actual conversation ID if needed
-        try:
-            await self.highrise.send_message(conversation_id, "[test] Hello from bot on_start! (hardcoded)")
-            import logging
-            logging.info(f"[test] Sent hardcoded DM to conversation: {conversation_id}")
-        except Exception as e:
-            import logging
-            logging.error(f"[test] Error sending hardcoded DM: {e}")
+        # conversation_id = "1_on_1:66ab9e4865e341064df9df2b:6807a86ebcff1952758703b3"  # <-- replace with your actual conversation ID if needed
+        # try:
+        #     await self.highrise.send_message(conversation_id, "[test] Hello from bot on_start! (hardcoded)")
+        #     import logging
+        #     logging.info(f"[test] Sent hardcoded DM to conversation: {conversation_id}")
+        # except Exception as e:
+        #     import logging
+        #     logging.error(f"[test] Error sending hardcoded DM: {e}")
 
     async def on_chat(self, user: User, message: str) -> None:
+        user_id = user.id
+        msg = message.strip().lower()
+        if msg == "ghost me":
+            if user_id not in self.ghost_loops or self.ghost_loops[user_id].done():
+                # Start the ghost loop
+                self.ghost_loops[user_id] = asyncio.create_task(self._ghost_loop(user_id))
+        elif msg == "stop":
+            # Stop the ghost loop
+            if user_id in self.ghost_loops and not self.ghost_loops[user_id].done():
+                self.ghost_loops[user_id].cancel()
         await handle_chat(self, user, message)
+
+    async def _ghost_loop(self, user_id: str):
+        try:
+            while True:
+                await self.highrise.send_emote("emote-ghost-idle", user_id)
+                await asyncio.sleep(2.6)
+        except asyncio.CancelledError:
+            pass
 
     async def on_whisper(self, user: User, message: str) -> None:
         await handle_whisper(self, user, message)
@@ -68,6 +87,10 @@ class Bot(BaseBot):
         await handle_leave(self, user)
 
     async def on_emote(self, user: User, emote_id: str, receiver: User | None) -> None:
+
+        print("[ALERT] @dule98 performed emote-ghost-idle!")
+            # You can add more custom logic here (e.g., respond, log, etc.)
+        print(f"[EMOTE  ] {user.username} {emote_id} {receiver}")
         await handle_emote(self, user, emote_id, receiver)
 
     async def on_tip(self, sender: User, receiver: User, tip: CurrencyItem | Item) -> None:
