@@ -35,7 +35,9 @@ def chat(prompt):
         chat_response = remove_chars_until_punctuation(chat_response)
         if not chat_response:
             chat_response = fallback_message_ai
-        return chat_response.strip()
+        # Remove repeating spaces and newlines
+        cleaned_response = ' '.join(chat_response.strip().split())
+        return cleaned_response
     except requests.exceptions.RequestException as e:
         print(f"Error: {e}")
         return fallback_message_ai
