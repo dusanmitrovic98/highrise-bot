@@ -4,21 +4,20 @@ import json
 import time
 import logging
 import subprocess
-import atexit
-import signal
 from typing import Dict, Any
 from highrise import User
 
 
 def get_user_permissions(user: User) -> list:
     """Retrieve permissions for a given user from the roles-based permissions config, with role hierarchy."""
-    handler = getattr(user, 'command_handler', None)
-    if handler and getattr(handler, 'permissions_data', None):
-        data = handler.permissions_data
-    else:
-        with open("config/permissions.json", "r") as f:
-            data = json.load(f)
-    users = data.get("users", {})
+    import pathlib
+    permissions_path = pathlib.Path("config/permissions.json")
+    users_path = pathlib.Path("config/users.json")
+    with open(permissions_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    with open(users_path, "r", encoding="utf-8") as f:
+        users_data = json.load(f)
+    users = users_data.get("users", {})
     roles = data.get("roles", {})
     user_entry = users.get(user.id)
     permissions_set = set()
@@ -62,8 +61,12 @@ class CommandHandler:
         self.load_commands()
 
     def load_permissions(self):
-        with open(os.path.join(os.path.dirname(__file__), "..", "..", "config", "permissions.json"), "r", encoding="utf-8") as f:
-            self.permissions_data = json.load(f)
+        # Only load roles from permissions.json
+        import pathlib
+        permissions_path = pathlib.Path("config/permissions.json")
+        with open(permissions_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        self.permissions_data = {"roles": data.get("roles", {})}
 
     def load_commands(self):
         """Load commands from modules in the src/commands directory and plugins directory, using config/commands.json for config."""

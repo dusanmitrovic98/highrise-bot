@@ -3,33 +3,31 @@ import os
 import subprocess
 
 CONFIG_FOLDER = 'config'
-PERMISSIONS_FILE = os.path.join(CONFIG_FOLDER, 'permissions.json')
+USERS_FILE = os.path.join(CONFIG_FOLDER, 'users.json')
 PORTS_REGISTER_FILE = os.path.join('runtime', 'ports', 'register.json')
 
-def load_permissions():
-    with open(PERMISSIONS_FILE, 'r') as file:
+# --- Permissions now only contains roles, user data is in users.json ---
+def load_users():
+    with open(USERS_FILE, 'r') as file:
         return json.load(file)
 
-def save_permissions(data):
-    with open(PERMISSIONS_FILE, 'w') as file:
+def save_users(data):
+    with open(USERS_FILE, 'w') as file:
         json.dump(data, file, indent=4)
 
 def user_exists(users, user_id):
-    return any(user['user_id'] == user_id for user in users)
+    return user_id in users.get('users', {})
 
 def username_exists(users, username):
-    return any(user['username'] == username for user in users)
+    return any(u.get('username') == username for u in users.get('users', {}).values())
 
 def get_user(users, user_id):
-    for user in users:
-        if user['user_id'] == user_id:
-            return user
-    return None
+    return users.get('users', {}).get(user_id)
 
 def get_user_id(users, username):
-    for user in users:
-        if user['username'] == username:
-            return user['user_id']
+    for uid, u in users.get('users', {}).items():
+        if u.get('username') == username:
+            return uid
     return None
 
 def kill_process_on_port(port):

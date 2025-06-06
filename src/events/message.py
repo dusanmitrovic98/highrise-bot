@@ -5,7 +5,6 @@ from pathlib import Path
 from .dispatch_util import dispatch_event
 
 USERS_PATH = Path("config/users.json")
-PERMISSIONS_PATH = Path("config/permissions.json")
 
 async def register_or_update_user(user_id, username):
     # Load users.json
@@ -24,33 +23,13 @@ async def register_or_update_user(user_id, username):
     with open(USERS_PATH, "w", encoding="utf-8") as f:
         json.dump(users_data, f, indent=4)
 
-    # Update permissions.json if not present or missing keys
-    if PERMISSIONS_PATH.exists():
-        with open(PERMISSIONS_PATH, "r", encoding="utf-8") as f:
-            perm_data = json.load(f)
-    else:
-        perm_data = {"users": {}, "roles": {}}
-    # Ensure keys exist
-    if "users" not in perm_data:
-        perm_data["users"] = {}
-    if "roles" not in perm_data:
-        perm_data["roles"] = {}
-    if user_id not in perm_data["users"]:
-        perm_data["users"][user_id] = {
-            "username": username,
-            "roles": ["guest"],
-            "extra_permissions": []
-        }
-        with open(PERMISSIONS_PATH, "w", encoding="utf-8") as f:
-            json.dump(perm_data, f, indent=4)
-
 async def handle_dm_subscribe(bot, user_id, username, conversation_id):
     await register_or_update_user(user_id, username)
     await bot.highrise.send_message(conversation_id, "Welcome! You are now subscribed. Your role is 'guest'.")
 
 async def handle_dm_opening(bot, user_id, username, conversation_id):
     await register_or_update_user(user_id, username)
-    await bot.highrise.send_message(conversation_id, "Hello! This is your first DM with the bot. You are now registered as a guest.")
+    await bot.highrise.send_message(conversation_id, "DM opened. Your role is 'guest'.")
 
 async def on_message(bot, user_id: str, conversation_id: str, is_new_conversation: bool) -> None:
     logging.info(f"[DEBUG] on_message handler called: user_id={user_id}, conversation_id={conversation_id}, is_new={is_new_conversation}")

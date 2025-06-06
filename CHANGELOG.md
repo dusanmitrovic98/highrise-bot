@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.16] - 2025-06-06
+### Changed
+- Changed the !spawn command to save the position of the user who invoked the command as the spawn point in config.json, instead of saving the bot's position.
+
 ## [0.0.15] - 2025-06-06
 
 ### Added

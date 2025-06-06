@@ -1,9 +1,16 @@
 {
     "users": {
+        "658780270141c6c8ed93835e": {
+            "username": "658780270141c6c8ed93835e",
+            "roles": [
+                "guest"
+            ],
+            "extra_permissions": []
+        },
         "6807a86ebcff1952758703b3": {
             "username": "dule98",
             "roles": [
-                "guest"
+                "owner"
             ],
             "extra_permissions": []
         }
