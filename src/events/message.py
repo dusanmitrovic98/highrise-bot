@@ -2,7 +2,6 @@ import json
 import logging
 from pathlib import Path
 
-from config.config import loggers
 from .dispatch_util import dispatch_event
 
 USERS_PATH = Path("config/users.json")
@@ -82,8 +81,6 @@ async def on_message(bot, user_id: str, conversation_id: str, is_new_conversatio
             await handle_dm_subscribe(bot, user_id, username, conversation_id)
             return
     # Otherwise, normal DM log
-    if loggers.messages:
-        logging.info(f"(dm) {user_id}: conversation {conversation_id} (new: {is_new_conversation})")
         if hasattr(messages, "messages") and messages.messages:
             last_message = messages.messages[-1]
             logging.info(f"(dm) {user_id}: {last_message.content}")

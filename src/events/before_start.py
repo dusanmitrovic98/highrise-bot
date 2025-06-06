@@ -12,6 +12,4 @@ async def before_start(bot, tg: TaskGroup) -> None:
     logging.info("[BEFORE_START] Bot is about to start. You can set up resources here.")
     # Example: schedule a background task (uncomment if needed)
     # tg.create_task(your_background_task())
-
-    # Dispatch to all plugin/command before_start handlers
     await dispatch_event(bot, "before_start", tg)

@@ -22,17 +22,21 @@ class Command(CommandBase):
         if not bot_position:
             await self.bot.highrise.chat("Could not determine bot's current position.")
             return
-        # Update config.json spawn section
-        config.spawn.x = bot_position.x
-        config.spawn.y = bot_position.y
-        config.spawn.z = bot_position.z
-        config.spawn.facing = getattr(bot_position, 'facing', 'Front')
+        # Update config.json locations.spawn section
+        config.locations.spawn.x = bot_position.x
+        config.locations.spawn.y = bot_position.y
+        config.locations.spawn.z = bot_position.z
+        config.locations.spawn.facing = getattr(bot_position, 'facing', 'Front')
         # Save changes to config.json
         from config.config import set_section
-        set_section('spawn', {
+        locations = dict(config.locations.__dict__)
+        # Remove private attributes if any
+        locations = {k: v.__dict__ if hasattr(v, '__dict__') else v for k, v in locations.items()}
+        locations['spawn'] = {
             'x': bot_position.x,
             'y': bot_position.y,
             'z': bot_position.z,
             'facing': getattr(bot_position, 'facing', 'Front')
-        })
+        }
+        set_section('locations', locations)
         await self.bot.highrise.chat(f"Spawn position updated to: x={bot_position.x}, y={bot_position.y}, z={bot_position.z}, facing={getattr(bot_position, 'facing', 'Front')}")

@@ -7,8 +7,7 @@ instance/
 *.pyc
 .conda
 
-bot_monitor.log
-bot.log
-
 config/config.json
 config/permissions.json
+
+*.log

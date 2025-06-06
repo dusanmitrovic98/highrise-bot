@@ -17,9 +17,5 @@ async def on_join(bot, user: User) -> None:
         }
         save_permissions(data)
     # --- End permissions logic ---
-    if loggers.joins:
-        logging.info(f"User joined: {user.username}:{user.id}")
     await bot.highrise.chat(f"{user.username} Joined the room!")
-
-    # Dispatch to all plugin/command on_join handlers
     await dispatch_event(bot, "on_join", user)

@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.14] - 2025-06-06
+
+### Added
+- All event methods in `main.py` now log all their arguments in detail, using the format `[EVENT] arg1=... arg2=...` for each method, for improved debugging and monitoring.
+
+### Changed
+- Replaced all print statements in `main.py` with logger calls, and added logger setup at the top of the file.
+- Log message formats now match those from `echo.py` for all relevant events.
+---
+
 ## [0.0.13] - 2025-06-06
 
 ### Changed

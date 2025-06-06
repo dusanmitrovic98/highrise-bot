@@ -1,6 +1,6 @@
 import logging
 from highrise.models import User, SessionMetadata, CurrencyItem, Item, Reaction, AnchorPosition, Position
-from src.events import join, leave, emote, whisper, start, chat, tips, react, movement, message
+from src.events import join, leave, emote, whisper, start, chat, tips, react, movement, message, before_start
 
 async def handle_start(bot, session_metadata: SessionMetadata) -> None:
     try:
@@ -70,3 +70,10 @@ async def handle_message(bot, user_id: str, conversation_id: str, is_new_convers
         await message.on_message(bot, user_id, conversation_id, is_new_conversation)
     except Exception as e:
         logging.error(f"An Error Occurred in handle_message: {e}")
+
+
+async def handle_before_start(bot, tg) -> None:
+    try:
+        await before_start.before_start(bot, tg)
+    except Exception as e:
+        logging.error(f"An Error Occurred in handle_before_start: {e}")
