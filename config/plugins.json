@@ -69,5 +69,26 @@
     "permissions": ["owner"],
     "aliases": [],
     "cooldown": 0
+  },
+  "use": {
+    "name": "use",
+    "description": "Move the bot to the specified entity's anchor 0. Usage: !use <entity_id>",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "entity": {
+    "name": "entity",
+    "description": "Save the entity id you are currently anchored to. Usage: !entity save <name>",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "entities": {
+    "name": "entities",
+    "description": "List all saved entity names and ids. Usage: !entities",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
   }
 }

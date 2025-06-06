@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.9] - 2025-06-06
+### Added
+- !entity save <name>: Save the entity id you are currently anchored to under a custom name.
+- !entities: List all saved entity names and ids.
+- !use <name|entity_id>: Move the bot to the specified entity by name or id.
+
+### Changed
+- !use now resolves names from config.json's entities section before falling back to raw ids.
+- The entity plugin now creates the 'entities' section in config.json automatically if it does not exist.
+
 ## [0.0.8] - 2025-06-06
 ### Added
 - Default distance of 1 for !push and !pull commands if distance argument is not provided.

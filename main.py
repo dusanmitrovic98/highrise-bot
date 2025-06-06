@@ -103,4 +103,4 @@ if __name__ == "__main__":
             arun(__main__.main([bot_def]))
         except Exception as e:
             print(f"Bot crashed with exception: {e}. Restarting in 5 seconds...")
-            time.sleep(5)
+            # time.sleep(5)
