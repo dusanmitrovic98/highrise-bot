@@ -34,6 +34,7 @@ from src.handlers.handleEvents import (
 )
 
 import logging
+from config.config import loggers
 
 # Set up logger
 logging.basicConfig(
@@ -42,6 +43,9 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger("highrise-bot")
+
+def should_log(section: str) -> bool:
+    return getattr(loggers, section, False)
 
 BotDefinition = namedtuple('BotDefinition', ['bot', 'room_id', 'api_token'])
 
@@ -54,8 +58,14 @@ class Bot(BaseBot):
         self.ghost_loops = {}  # Track running ghost loops per user
         super().__init__()
 
+    async def before_start(cls, tg):
+        if should_log("before_start"):
+            logger.info(f"[BEFORE_START] cls={cls} tg={tg}")
+        await handle_before_start(cls, tg)
+
     async def on_start(self, session_metadata: SessionMetadata) -> None:
-        logger.info(f"[START  ] session_metadata={session_metadata}")
+        if should_log("start"):
+            logger.info(f"[START  ] session_metadata={session_metadata}")
         await handle_start(self, session_metadata)
         # Hardcoded conversation ID for testing
         # conversation_id = "1_on_1:66ab9e4865e341064df9df2b:6807a86ebcff1952758703b3"  # <-- replace with your actual conversation ID if needed
@@ -67,8 +77,14 @@ class Bot(BaseBot):
         #     import logging
         #     logging.error(f"[test] Error sending hardcoded DM: {e}")
 
+    async def on_user_join(self, user: User, position: Position) -> None:
+        if should_log("user_join"):
+            logger.info(f"[JOIN   ] user={user} position={position}")
+        await handle_join(self, user)
+
     async def on_chat(self, user: User, message: str) -> None:
-        logger.info(f"[CHAT   ] user={user} message={message}")
+        if should_log("chat"):
+            logger.info(f"[CHAT   ] user={user} message={message}")
         user_id = user.id
         msg = message.strip().lower()
         if msg == "ghost me":
@@ -80,6 +96,45 @@ class Bot(BaseBot):
             if user_id in self.ghost_loops and not self.ghost_loops[user_id].done():
                 self.ghost_loops[user_id].cancel()
         await handle_chat(self, user, message)
+
+    async def on_whisper(self, user: User, message: str) -> None:
+        if should_log("whisper"):
+            logger.info(f"[WHISPER] user={user} message={message}")
+        await handle_whisper(self, user, message)
+
+    async def on_emote(self, user: User, emote_id: str, receiver: User | None) -> None:
+        if should_log("emote"):
+            logger.info(f"[EMOTE  ] user={user} emote_id={emote_id} receiver={receiver}")
+        await handle_emote(self, user, emote_id, receiver)
+
+    async def on_reaction(self, user: User, reaction: Reaction, receiver: User) -> None:
+        if should_log("reaction"):
+            logger.info(f"[REACTION] user={user} reaction={reaction} receiver={receiver}")
+        await handle_reactions(self, user, reaction, receiver)
+
+    async def on_tip(self, sender: User, receiver: User, tip: CurrencyItem | Item) -> None:
+        if should_log("tip"):
+            logger.info(f"[TIP    ] sender={sender} receiver={receiver} tip={tip}")
+        await handle_tips(self, sender, receiver, tip)
+
+    async def on_user_move(self, user: User, destination: Position | AnchorPosition) -> None:
+        if should_log("user_move"):
+            logger.info(f"[MOVE   ] user={user} destination={destination}")
+        await handle_movements(self, user, destination)
+
+    async def on_user_leave(self, user: User) -> None:
+        if should_log("user_leave"):
+            logger.info(f"[LEAVE  ] user={user}")
+        user_id = user.id
+        # Cancel ghost loop if running
+        if user_id in self.ghost_loops and not self.ghost_loops[user_id].done():
+            self.ghost_loops[user_id].cancel()
+        await handle_leave(self, user)
+
+    async def on_message(self, user_id: str, conversation_id: str, is_new_conversation: bool) -> None:
+        if should_log("message"):
+            logger.info(f"[MESSAGE] user_id={user_id} conversation_id={conversation_id} is_new_conversation={is_new_conversation}")
+        await handle_message(self, user_id, conversation_id, is_new_conversation)
 
     async def _ghost_loop(self, user_id: str):
         try:
@@ -94,46 +149,6 @@ class Bot(BaseBot):
                 await asyncio.sleep(2.6)
         except asyncio.CancelledError:
             pass
-
-    async def on_whisper(self, user: User, message: str) -> None:
-        logger.info(f"[WHISPER] user={user} message={message}")
-        await handle_whisper(self, user, message)
-
-    async def on_user_join(self, user: User, position: Position) -> None:
-        logger.info(f"[JOIN   ] user={user} position={position}")
-        await handle_join(self, user)
-
-    async def on_user_leave(self, user: User) -> None:
-        logger.info(f"[LEAVE  ] user={user}")
-        user_id = user.id
-        # Cancel ghost loop if running
-        if user_id in self.ghost_loops and not self.ghost_loops[user_id].done():
-            self.ghost_loops[user_id].cancel()
-        await handle_leave(self, user)
-
-    async def on_emote(self, user: User, emote_id: str, receiver: User | None) -> None:
-        logger.info(f"[EMOTE  ] user={user} emote_id={emote_id} receiver={receiver}")
-        await handle_emote(self, user, emote_id, receiver)
-
-    async def on_tip(self, sender: User, receiver: User, tip: CurrencyItem | Item) -> None:
-        logger.info(f"[TIP    ] sender={sender} receiver={receiver} tip={tip}")
-        await handle_tips(self, sender, receiver, tip)
-
-    async def on_reaction(self, user: User, reaction: Reaction, receiver: User) -> None:
-        logger.info(f"[REACTION] user={user} reaction={reaction} receiver={receiver}")
-        await handle_reactions(self, user, reaction, receiver)
-
-    async def on_user_move(self, user: User, destination: Position | AnchorPosition) -> None:
-        logger.info(f"[MOVE   ] user={user} destination={destination}")
-        await handle_movements(self, user, destination)
-
-    async def on_message(self, user_id: str, conversation_id: str, is_new_conversation: bool) -> None:
-        logger.info(f"[MESSAGE] user_id={user_id} conversation_id={conversation_id} is_new_conversation={is_new_conversation}")
-        await handle_message(self, user_id, conversation_id, is_new_conversation)
-
-    async def before_start(cls, tg):
-        logger.info(f"[BEFORE_START] cls={cls} tg={tg}")
-        await handle_before_start(cls, tg)
 
     async def run(self, room_id, token):
         self.room_id = room_id
@@ -158,11 +173,13 @@ if __name__ == "__main__":
         shutdown_flag.unlink()
     while True:
         if shutdown_flag.exists():
-            logger.info("Shutdown flag detected. Exiting bot loop.")
+            if should_log("main"):
+                logger.info("Shutdown flag detected. Exiting bot loop.")
             break
         try:
             bot_def = BotDefinition(bot=Bot(room_id, token), room_id=room_id, api_token=token)
             arun(__main__.main([bot_def]))
         except Exception as e:
-            logger.error(f"Bot crashed with exception: {e}. Restarting in 5 seconds...")
+            if should_log("main"):
+                logger.error(f"Bot crashed with exception: {e}. Restarting in 5 seconds...")
             # time.sleep(5)

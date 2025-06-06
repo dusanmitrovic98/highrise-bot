@@ -24,12 +24,17 @@ async def register_or_update_user(user_id, username):
     with open(USERS_PATH, "w", encoding="utf-8") as f:
         json.dump(users_data, f, indent=4)
 
-    # Update permissions.json if not present
+    # Update permissions.json if not present or missing keys
     if PERMISSIONS_PATH.exists():
         with open(PERMISSIONS_PATH, "r", encoding="utf-8") as f:
             perm_data = json.load(f)
     else:
         perm_data = {"users": {}, "roles": {}}
+    # Ensure keys exist
+    if "users" not in perm_data:
+        perm_data["users"] = {}
+    if "roles" not in perm_data:
+        perm_data["roles"] = {}
     if user_id not in perm_data["users"]:
         perm_data["users"][user_id] = {
             "username": username,

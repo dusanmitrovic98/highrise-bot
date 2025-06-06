@@ -12,7 +12,7 @@ async def on_join(bot, user: User) -> None:
     if user.id not in data.get("users", {}):
         data["users"][user.id] = {
             "username": user.username,
-            "roles": ["user"],
+            "roles": ["guest"],  # Set new users as 'guest'
             "extra_permissions": []
         }
         save_permissions(data)

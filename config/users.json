@@ -1,3 +1,11 @@
 {
-
+    "users": {
+        "6807a86ebcff1952758703b3": {
+            "username": "dule98",
+            "roles": [
+                "guest"
+            ],
+            "extra_permissions": []
+        }
+    }
 }

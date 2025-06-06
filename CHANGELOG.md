@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.15] - 2025-06-06
+
+### Added
+- On user join, new users are now automatically added as 'guest' to both users.json and permissions.json for consistent user management.
+
+### Changed
+- Refactored join event logic for improved code clarity and maintainability.
+
 ## [0.0.14] - 2025-06-06
 
 ### Added

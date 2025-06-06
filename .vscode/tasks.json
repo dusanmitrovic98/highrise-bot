@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Create Git Tag with Release Message",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-Command",
+				"$tag=Read-Host 'Enter tag version'; git tag -a $tag -m \"Release $tag - Refer to CHANGELOG.md for update details\"; git push origin $tag"
+			],
+			"group": "build"
+		}
+	]
+}
