@@ -15,18 +15,22 @@ class Command(CommandBase):
         super().__init__(bot)
 
     async def execute(self, user: User, args: list, message: str):
-        if len(args) < 2:
+        if len(args) < 1:
             await self.bot.highrise.send_whisper(user.id, "Usage: !pull @username <distance>")
             return
         if not args[0].startswith("@"):
             await self.bot.highrise.send_whisper(user.id, "First argument must be @username")
             return
         target_name = args[0][1:]
-        try:
-            distance = float(args[1])
-        except ValueError:
-            await self.bot.highrise.send_whisper(user.id, "Invalid distance.")
-            return
+        # Default distance to 1 if not provided
+        if len(args) >= 2:
+            try:
+                distance = float(args[1])
+            except ValueError:
+                await self.bot.highrise.send_whisper(user.id, "Invalid distance.")
+                return
+        else:
+            distance = 1.0
         target, target_pos = await get_user_and_pos(self.bot, target_name)
         if not target:
             await self.bot.highrise.send_whisper(user.id, f"User {target_name} not found.")

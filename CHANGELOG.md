@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.8] - 2025-06-06
+### Added
+- Default distance of 1 for !push and !pull commands if distance argument is not provided.
+
+### Improved
+- Error handling for missing user or position in push command.
+
 ## [0.0.7] - 2025-06-06
 ### Changed
 - Refactor revoke command: use !revoke role|permission @username name pattern and update pattern matching
