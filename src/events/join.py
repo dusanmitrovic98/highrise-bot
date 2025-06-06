@@ -11,6 +11,7 @@ async def on_join(bot, user: User) -> None:
     data = load_permissions()
     if user.id not in data.get("users", {}):
         data["users"][user.id] = {
+            "username": user.username,
             "roles": ["user"],
             "extra_permissions": []
         }

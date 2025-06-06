@@ -2,14 +2,9 @@
   "come": {
     "name": "come",
     "description": "Moves the bot to a player's position.",
-    "permissions": ["owner"],
-    "aliases": [],
-    "cooldown": 0
-  },
-  "grant_permission": {
-    "name": "grant_permission",
-    "description": "Grant a permission or role to a user.",
-    "permissions": ["owner"] ,
+    "permissions": [
+      "owner"
+    ],
     "aliases": [],
     "cooldown": 0
   },
@@ -23,92 +18,143 @@
   "identify": {
     "name": "identify",
     "description": "Show your user ID, username, and permissions.",
-    "permissions": ["owner"],
+    "permissions": [
+      "owner"
+    ],
     "aliases": [],
     "cooldown": 0
   },
   "position": {
     "name": "position",
     "description": "Display someone's position in the room.",
-    "permissions": ["owner"],
-    "aliases": ["pos"],
+    "permissions": [
+      "owner"
+    ],
+    "aliases": [
+      "pos"
+    ],
     "cooldown": 0
   },
   "reboot": {
     "name": "reboot",
     "description": "Restart the bot process.",
-    "permissions": ["owner"],
+    "permissions": [
+      "owner"
+    ],
     "aliases": [],
     "cooldown": 0
   },
   "reload": {
     "name": "reload",
     "description": "Reload all commands and plugins.",
-    "permissions": ["owner"],
+    "permissions": [
+      "owner"
+    ],
     "aliases": [],
     "cooldown": 0
   },
   "shutdown": {
     "name": "shutdown",
     "description": "Shut down the bot.",
-    "permissions": ["owner"],
+    "permissions": [
+      "owner"
+    ],
     "aliases": [],
     "cooldown": 0
   },
   "summon": {
     "name": "summon",
     "description": "Teleport a player to your position.",
-    "permissions": ["owner"],
+    "permissions": [
+      "owner"
+    ],
     "aliases": [],
     "cooldown": 0
   },
   "teleport": {
     "name": "teleport",
     "description": "Teleport a player to a specific position.",
-    "permissions": ["owner"],
-    "aliases": ["tp"],
+    "permissions": [
+      "owner"
+    ],
+    "aliases": [
+      "tp"
+    ],
     "cooldown": 0
   },
   "wallet": {
     "name": "wallet",
     "description": "Check the bot's wallet.",
-    "permissions": ["owner"],
+    "permissions": [
+      "owner"
+    ],
     "aliases": [],
     "cooldown": 0
   },
   "follow": {
     "name": "follow",
     "description": "Make the bot follow a player.",
-    "permissions": ["owner"],
+    "permissions": [
+      "owner"
+    ],
     "aliases": [],
     "cooldown": 0
   },
   "crash": {
     "name": "crash",
     "description": "Crash the bot (for testing purposes).",
-    "permissions": ["owner"],
+    "permissions": [
+      "owner"
+    ],
     "aliases": [],
     "cooldown": 0
   },
   "spawn": {
     "name": "spawn",
     "description": "Set the bot's current position as the spawn point.",
-    "permissions": ["owner"],
+    "permissions": [
+      "owner"
+    ],
     "aliases": [],
     "cooldown": 0
   },
   "move": {
     "name": "move",
     "description": "Move the bot to a named location.",
-    "permissions": ["owner"],
+    "permissions": [
+      "owner"
+    ],
     "aliases": [],
     "cooldown": 0
   },
   "locations": {
     "name": "locations",
     "description": "Display, add or remove saved locations.",
-    "permissions": ["owner"],
-    "aliases": ["loc", "locs"],
+    "permissions": [
+      "owner"
+    ],
+    "aliases": [
+      "loc",
+      "locs"
+    ],
+    "cooldown": 0
+  },
+  "grant": {
+    "name": "grant",
+    "description": "Grant or revoke a role or permission to a user. Usage: !grant role|permission @username name / !revoke role|permission @username name",
+    "permissions": [
+      "owner"
+    ],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "revoke": {
+    "name": "revoke",
+    "description": "Revoke (remove) a role or permission from a user. Usage: !revoke role|permission @username name",
+    "permissions": [
+      "owner"
+    ],
+    "aliases": [],
     "cooldown": 0
   }
 }

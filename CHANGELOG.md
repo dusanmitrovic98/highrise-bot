@@ -9,8 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [0.0.7] - 2025-06-06
+### Changed
+- Refactor revoke command: use !revoke role|permission @username name pattern and update pattern matching
+- Improved clarity and consistency for permission/role revocation commands.
+
 ### Fixed 
 - Users are being added to permission.json on join.
+
 
 ## [0.0.6] - 2025-06-05
 ### Added
