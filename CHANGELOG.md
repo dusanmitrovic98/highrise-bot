@@ -1,11 +1,13 @@
+<!-- TODO: Add details for the next release below. -->
 # Changelog
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),  
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
 
 ## [v0.0.10] - 2025-06-06
 
@@ -16,33 +18,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `interval=...` parameter can be placed anywhere in the command arguments.
 - Usage help messages updated for all reaction commands.
 
+---
+
 ## [0.0.9] - 2025-06-06
+
 ### Added
-- !entity save <name>: Save the entity id you are currently anchored to under a custom name.
-- !entities: List all saved entity names and ids.
-- !use <name|entity_id>: Move the bot to the specified entity by name or id.
+- `!entity save <name>`: Save the entity id you are currently anchored to under a custom name.
+- `!entities`: List all saved entity names and ids.
+- `!use <name|entity_id>`: Move the bot to the specified entity by name or id.
 
 ### Changed
-- !use now resolves names from config.json's entities section before falling back to raw ids.
-- The entity plugin now creates the 'entities' section in config.json automatically if it does not exist.
+- `!use` now resolves names from `config.json`'s entities section before falling back to raw ids.
+- The entity plugin now creates the `entities` section in `config.json` automatically if it does not exist.
+
+---
 
 ## [0.0.8] - 2025-06-06
+
 ### Added
-- Default distance of 1 for !push and !pull commands if distance argument is not provided.
+- Default distance of 1 for `!push` and `!pull` commands if distance argument is not provided.
 
 ### Improved
 - Error handling for missing user or position in push command.
 
+---
+
 ## [0.0.7] - 2025-06-06
+
 ### Changed
-- Refactor revoke command: use !revoke role|permission @username name pattern and update pattern matching
+- Refactor revoke command: use `!revoke role|permission @username name` pattern and update pattern matching.
 - Improved clarity and consistency for permission/role revocation commands.
 
-### Fixed 
-- Users are being added to permission.json on join.
+### Fixed
+- Users are being added to `permission.json` on join.
 
+---
 
 ## [0.0.6] - 2025-06-05
+
 ### Added
 - Plugin/command event handler system: Commands can now register custom event handlers (e.g., on_chat) via CommandBase.
 - Event dispatcher (chat) now calls all registered on_chat handlers for loaded commands/plugins.
@@ -62,6 +75,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Notes
 - This enables modular, event-driven plugin development for all future commands and plugins.
 
+---
+
 ## [0.0.5] - 2025-06-05
 
 ### Added
@@ -80,7 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Uses spawn position and facing from config if available.
   - Provides clear feedback messages for all cases.
 - Owner/admin users (with "*" permission) can now run any command, even if the command requires specific permissions.
-- !reload command now reloads both commands and permissions, so changes to permissions.json are applied without restart.
+- `!reload` command now reloads both commands and permissions, so changes to permissions.json are applied without restart.
 - Removed all manual permission checks from command files; permission logic is now fully centralized.
 - Fixed bot startup crash due to method order in CommandHandler.
 
@@ -91,6 +106,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - emote command
+
+---
 
 ## [0.0.4] - 2025-06-03
 
@@ -117,6 +134,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed punctuation set syntax in remove_chars_until_punctuation to prevent syntax errors and improve response trimming.
 - Fixed bot now always respects the follow distance set in config or via command, even if set as a string.
 
+---
+
 ## [0.0.3] - 2025-06-03
 
 ### Added
@@ -129,7 +148,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved error handling and user feedback for failed commands: users now receive more descriptive error messages, including permission and cooldown details.
 - Enhanced logging: command usage and errors (with traceback and user context) are now logged for better diagnostics and analytics.
 
+---
+
 ## [0.0.2] - 2025-06-03
+
 ### Added
 - Added `reset` dev command: allows admins/owners to restart the bot process via chat command (`/reset` or `/restart`).
 
@@ -142,6 +164,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Command loader now skips `command_base.py` and files without a `Command` class, preventing spurious log errors.
 - Changed `/reset` command to exit the process, ensuring single restart when using monitor script.
+
+---
 
 ## [0.0.1] - 2025-06-03
 
