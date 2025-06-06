@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.0.10] - 2025-06-06
+
+### Added
+- All reaction commands (`!react`, `!clap`, `!heart`, `!thumbs`, `!wave`, `!wink`) now support an optional `[count]` and `[interval=seconds]` parameter.
+  - Example: `!react heart @user1 @user2 3 interval=2` will send 3 heart reactions to each mentioned user, with 2 seconds between each.
+  - Example: `!clap all 5 interval=1.5` will send 5 claps to every user in the room, with 1.5 seconds between each.
+- The `interval=...` parameter can be placed anywhere in the command arguments.
+- Usage help messages updated for all reaction commands.
 
 ## [0.0.9] - 2025-06-06
 ### Added

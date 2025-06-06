@@ -29,6 +29,7 @@ from src.handlers.handleEvents import (
     handle_start,
     handle_tips,
     handle_whisper,
+    handle_message,
 )
 
 
@@ -44,6 +45,15 @@ class Bot(BaseBot):
 
     async def on_start(self, session_metadata: SessionMetadata) -> None:
         await handle_start(self, session_metadata)
+        # Hardcoded conversation ID for testing
+        conversation_id = "1_on_1:66ab9e4865e341064df9df2b:6807a86ebcff1952758703b3"  # <-- replace with your actual conversation ID if needed
+        try:
+            await self.highrise.send_message(conversation_id, "[test] Hello from bot on_start! (hardcoded)")
+            import logging
+            logging.info(f"[test] Sent hardcoded DM to conversation: {conversation_id}")
+        except Exception as e:
+            import logging
+            logging.error(f"[test] Error sending hardcoded DM: {e}")
 
     async def on_chat(self, user: User, message: str) -> None:
         await handle_chat(self, user, message)
@@ -68,6 +78,9 @@ class Bot(BaseBot):
 
     async def on_user_move(self, user: User, destination: Position | AnchorPosition) -> None:
         await handle_movements(self, user, destination)
+
+    async def on_message(self, user_id: str, conversation_id: str, is_new_conversation: bool) -> None:
+        await handle_message(self, user_id, conversation_id, is_new_conversation)
 
     @classmethod
     async def before_start(cls, tg):

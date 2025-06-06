@@ -1,6 +1,6 @@
 import logging
 from highrise.models import User, SessionMetadata, CurrencyItem, Item, Reaction, AnchorPosition, Position
-from src.events import join, leave, emote, whisper, start, chat, tips, react, movement
+from src.events import join, leave, emote, whisper, start, chat, tips, react, movement, message
 
 async def handle_start(bot, session_metadata: SessionMetadata) -> None:
     try:
@@ -63,3 +63,10 @@ async def handle_tips(bot, sender: User, receiver: User, tip: CurrencyItem | Ite
         await tips.on_tip(bot, sender, receiver, tip)
     except Exception as e:
         logging.error(f"An Error Occurred in handle_tips: {e}")
+
+
+async def handle_message(bot, user_id: str, conversation_id: str, is_new_conversation: bool) -> None:
+    try:
+        await message.on_message(bot, user_id, conversation_id, is_new_conversation)
+    except Exception as e:
+        logging.error(f"An Error Occurred in handle_message: {e}")

@@ -156,5 +156,47 @@
     ],
     "aliases": [],
     "cooldown": 0
+  },
+  "heart": {
+    "name": "heart",
+    "description": "Send a heart reaction to a user or all users in the room. Usage: !heart @user or !heart all",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "react": {
+    "name": "react",
+    "description": "Send a reaction to a user or all users in the room. Usage: !react <reaction> @user or !react <reaction> all. Supported reactions: clap, heart, thumbs, wave, wink.",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "clap": {
+    "name": "clap",
+    "description": "Send a clap reaction to one or more users, or all users in the room. Usage: !clap @user1 @user2 ... | !clap all",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "thumbs": {
+    "name": "thumbs",
+    "description": "Send a thumbs reaction to one or more users, or all users in the room. Usage: !thumbs @user1 @user2 ... | !thumbs all",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "wave": {
+    "name": "wave",
+    "description": "Send a wave reaction to one or more users, or all users in the room. Usage: !wave @user1 @user2 ... | !wave all",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
+  },
+  "wink": {
+    "name": "wink",
+    "description": "Send a wink reaction to one or more users, or all users in the room. Usage: !wink @user1 @user2 ... | !wink all",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
   }
 }
