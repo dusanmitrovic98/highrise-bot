@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.13] - 2025-06-06
+
+### Changed
+- The !line command no longer requires or accepts a direction argument. It now supports unlimited @mentions and an optional spacing parameter.
+- !line now centers the stack between the first and last user, placing all users in a line with equal spacing, centered on the midpoint.
+- Improved collision avoidance for all users except the first in both !line and !swap.
+- The !swap command maintains robust multi-user support and circular swapping logic.
+- General improvements to user lookup and error handling in both commands.
+
 ## [0.0.12] - 2025-06-06
 ### Added
 - Unlimited user support for the !swap command: you can now mention any number of users, and all will be swapped in a circular fashion (caller included).
