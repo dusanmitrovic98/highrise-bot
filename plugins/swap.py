@@ -11,9 +11,8 @@ class Command(CommandBase):
         super().__init__(bot)
 
     async def execute(self, user: User, args: list, message: str):
-
         if not args:
-            await self.bot.highrise.chat("Usage: !swap @user1 [@user2]")
+            await self.bot.highrise.chat("Usage: !swap @user1 [@user2 ...]")
             return
 
         def extract_username(arg):
@@ -24,13 +23,8 @@ class Command(CommandBase):
             await self.bot.highrise.chat("Please mention at least one user to swap with.")
             return
 
-        await self.bot.highrise.chat(usernames)
-
-        if len(usernames) == 1:
-            username1 = user.username
-            username2 = usernames[0]
-        else:
-            username1, username2 = usernames[:2]
+        # Build the swap order: caller first, then all mentioned users
+        swap_usernames = [user.username] + usernames
 
         room_users_resp = await self.bot.highrise.get_room_users()
         if hasattr(room_users_resp, 'content'):
@@ -39,24 +33,36 @@ class Command(CommandBase):
             await self.bot.highrise.chat("Failed to get room users.")
             return
 
-        user1 = user2 = pos1 = pos2 = None
+        # Map usernames to (user, pos)
+        user_map = {}
         for u, pos in users_positions:
-            if u.username.lower() == username1.lower():
-                user1, pos1 = u, pos
-            elif u.username.lower() == username2.lower():
-                user2, pos2 = u, pos
-        if not user1 or not user2 or not pos1 or not pos2:
-            await self.bot.highrise.chat("Could not find both users in the room.")
-            return
+            user_map[u.username.lower()] = (u, pos)
 
-        caller_user_id = user.id
-        if user1.id == caller_user_id:
-            caller_user, caller_pos = user1, pos1
-            other_user, other_pos = user2, pos2
-        else:
-            caller_user, caller_pos = user2, pos2
-            other_user, other_pos = user1, pos1
+        # Collect user objects and positions in swap order
+        swap_users = []
+        swap_positions = []
+        for uname in swap_usernames:
+            entry = user_map.get(uname.lower())
+            if not entry:
+                await self.bot.highrise.chat(f"Could not find user '{uname}' in the room.")
+                return
+            swap_users.append(entry[0])
+            swap_positions.append(entry[1])
 
-        temp_pos = Position(x=caller_pos.x, y=caller_pos.y, z=caller_pos.z)
-        await self.bot.highrise.teleport(caller_user.id, Position(x=other_pos.x, y=other_pos.y, z=other_pos.z - 0.000000000000001))
-        await self.bot.highrise.teleport(other_user.id, Position(x=temp_pos.x, y=temp_pos.y, z=temp_pos.z - 0.000000000000001))
+        # Store all positions before swapping
+        temp_positions = [Position(x=pos.x, y=pos.y, z=pos.z) for pos in swap_positions]
+
+        # Calculate target positions for each user (circular swap)
+        n = len(swap_users)
+        target_positions = []
+        for i in range(n):
+            target_index = (i + 1) % n
+            target_pos = temp_positions[target_index]
+            # Subtract a tiny value from z to avoid collision
+            target_positions.append(Position(x=target_pos.x, y=target_pos.y, z=target_pos.z - 0.000000000000001))
+
+        # Teleport all users in parallel
+        await asyncio.gather(*[
+            self.bot.highrise.teleport(swap_users[i].id, target_positions[i])
+            for i in range(n)
+        ])

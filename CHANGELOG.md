@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.12] - 2025-06-06
+### Added
+- Unlimited user support for the !swap command: you can now mention any number of users, and all will be swapped in a circular fashion (caller included).
+- All teleports are now performed in parallel for faster and smoother swaps.
+
+### Changed
+- Improved swap logic to use temp values and avoid position overwrites.
+- Maintains collision avoidance by offsetting z-coordinate during teleportation.
+
 ## [v0.0.11] - 2025-06-06
 
 ### Added
