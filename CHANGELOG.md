@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.21] - 2025-06-07
+
+### Added
+- Support for starting and stopping emote loops directly from chat (not just via !emote command)
+- Users can type a number, emote name, or emote id with "loop" and optional "interval=" to start a looping emote on themselves
+- Typing "stop" in chat cancels the user's emote loop
+
+### Fixed
+- Improved argument parsing for quoted values (e.g., description="Wave at someone.") in emote save/update commands
+
+### Changed
+- Unified emote loop tracking for both command and chat triggers
+
 ## [v0.0.20] - 2025-06-07
 ### Added
 - The !react command now supports custom sequences of reactions (e.g., !react heart clap wink @user 3 interval=2).

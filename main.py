@@ -67,15 +67,6 @@ class Bot(BaseBot):
         if should_log("start"):
             logger.info(f"[START  ] session_metadata={session_metadata}")
         await handle_start(self, session_metadata)
-        # Hardcoded conversation ID for testing
-        # conversation_id = "1_on_1:66ab9e4865e341064df9df2b:6807a86ebcff1952758703b3"  # <-- replace with your actual conversation ID if needed
-        # try:
-        #     await self.highrise.send_message(conversation_id, "[test] Hello from bot on_start! (hardcoded)")
-        #     import logging
-        #     logging.info(f"[test] Sent hardcoded DM to conversation: {conversation_id}")
-        # except Exception as e:
-        #     import logging
-        #     logging.error(f"[test] Error sending hardcoded DM: {e}")
 
     async def on_user_join(self, user: User, position: Position) -> None:
         if should_log("user_join"):

@@ -1,0 +1,25 @@
+{
+    "emotes_free": [
+        {
+            "name": "wave",
+            "id": "emote-wave",
+            "description": "\"Wave",
+            "category": "\"greetings\"",
+            "icon": "\"https://example.com/icon.png\"",
+            "interval": 5.0
+        },
+        {
+            "name": "hello",
+            "id": "emote-hello",
+            "description": "Say hello",
+            "category": "greetings",
+            "icon": "https://example.com/icon.png",
+            "interval": 3
+        },
+        {
+            "name": "ghostfloat",
+            "id": "emote-ghost-idle",
+            "interval": 2.6
+        }
+    ]
+}

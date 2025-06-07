@@ -198,5 +198,12 @@
     "permissions": [],
     "aliases": [],
     "cooldown": 0
+  },
+  "emote": {
+    "name": "emote",
+    "description": "Play, list, save, update, remove, move, or show details for emotes. Usage: !emote <name|id|number> [loop] [interval] [all|@user ...] | !emote list | !emote save ... | !emote update ... | !emote remove ... | !emote details ... | !emote move ...",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
   }
 }
