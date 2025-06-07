@@ -7,6 +7,8 @@ class Command(CommandBase):
     Usage:
       !portal <room_name_or_id>
       !warp <room_name_or_id>
+      !portal <room_name_or_id> all
+      !portal <room_name_or_id> @user1 @user2 ...
     """
     def __init__(self, bot):
         super().__init__(bot)
@@ -14,18 +16,17 @@ class Command(CommandBase):
 
     async def execute(self, user, args, message):
         if not args:
-            await self.bot.highrise.send_whisper(user.id, "Usage: !portal <room_name_or_id> [@username] | !portal all <room_name_or_id>")
+            await self.bot.highrise.send_whisper(user.id, "Usage: !portal <room_name_or_id> [all|@username ...]")
             return
         portals = get_section("portals") or {}
-        # Mass teleport: !portal all <dest>
-        if args[0].lower() == "all" and len(args) > 1:
-            key = args[1]
-            room_id = portals.get(key, key if len(key) == 24 else None)
-            if not room_id:
-                await self.bot.highrise.send_whisper(user.id, f"No portal named '{key}' and not a valid room ID.")
-                return
+        key = args[0]
+        room_id = portals.get(key, key if len(key) == 24 else None)
+        if not room_id:
+            await self.bot.highrise.send_whisper(user.id, f"No portal named '{key}' and not a valid room ID.")
+            return
+        # Check for 'all' or user mentions in the rest of the args
+        if any(arg.lower() == "all" for arg in args[1:]):
             users_resp = await self.bot.highrise.get_room_users()
-            bot_id = None
             from config.config import get
             bot_id = get('bot_id')
             bot_name = get('bot_name')
@@ -52,111 +53,49 @@ class Command(CommandBase):
             else:
                 await self.bot.highrise.send_whisper(user.id, "Could not fetch room users.")
             return
-        # Check for user mention as second argument
-        if len(args) > 1 and args[1].startswith("@"):
-            username = args[1][1:]
+        # Handle user mentions
+        mentioned_usernames = [arg[1:] for arg in args[1:] if arg.startswith("@")]
+        if mentioned_usernames:
             from config.config import get
-            bot_id = get('bot_id')
             bot_name = get('bot_name')
-            if bot_name and username.lower() == bot_name.lower():
-                # Instead of move_user_to_room, use the same logic as warp all for the bot
-                import os
-                flag_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'runtime', 'flags')
-                os.makedirs(flag_dir, exist_ok=True)
-                flag_path = os.path.join(flag_dir, 'warp.flag')
-                key = args[0]
-                room_id = portals.get(key, key if len(key) == 24 else None)
-                if not room_id:
-                    await self.bot.highrise.send_whisper(user.id, f"No portal named '{key}' and not a valid room ID.")
-                    return
-                with open(flag_path, 'w') as f:
-                    f.write(room_id)
-                # Send whisper BEFORE exit
-                await self.bot.highrise.send_whisper(user.id, f"Bot is now moving to room '{key}' and will restart.")
-                os._exit(1)
-            else:
-                users_resp = await self.bot.highrise.get_room_users()
-                if hasattr(users_resp, 'content'):
-                    found = False
-                    for u, _ in users_resp.content:
-                        if u.username.lower() == username.lower():
-                            target_user = u
-                            found = True
-                            break
-                    if not found:
-                        await self.bot.highrise.send_whisper(user.id, f"User @{username} not found in the room.")
-                        return
-                    key = args[0]
-                    room_id = portals.get(key, key if len(key) == 24 else None)
-                    if not room_id:
-                        await self.bot.highrise.send_whisper(user.id, f"No portal named '{key}' and not a valid room ID.")
-                        return
-                else:
-                    await self.bot.highrise.send_whisper(user.id, "Could not fetch room users.")
-                    return
-        else:
-            target_user = user
-            key = args[0]
-            room_id = portals.get(key, key if len(key) == 24 else None)
-            if not room_id:
-                await self.bot.highrise.send_whisper(user.id, f"No portal named '{key}' and not a valid room ID.")
+            users_resp = await self.bot.highrise.get_room_users()
+            if not hasattr(users_resp, 'content'):
+                await self.bot.highrise.send_whisper(user.id, "Could not fetch room users.")
                 return
+            moved = []
+            not_found = []
+            for username in mentioned_usernames:
+                if bot_name and username.lower() == bot_name.lower():
+                    # Warp bot itself
+                    import os
+                    flag_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'runtime', 'flags')
+                    os.makedirs(flag_dir, exist_ok=True)
+                    flag_path = os.path.join(flag_dir, 'warp.flag')
+                    with open(flag_path, 'w') as f:
+                        f.write(room_id)
+                    # Send whisper BEFORE exit
+                    await self.bot.highrise.send_whisper(user.id, f"Bot is now moving to room '{key}' and will restart.")
+                    os._exit(1)
+                found = False
+                for u, _ in users_resp.content:
+                    if u.username.lower() == username.lower():
+                        try:
+                            await self.bot.highrise.move_user_to_room(u.id, room_id)
+                            moved.append(f"@{u.username}")
+                        except Exception as exc:
+                            not_found.append(f"@{u.username} (error: {exc})")
+                        found = True
+                        break
+                if not found:
+                    not_found.append(f"@{username}")
+            if moved:
+                await self.bot.highrise.send_whisper(user.id, f"Warped {', '.join(moved)} to room '{key}'.")
+            if not_found:
+                await self.bot.highrise.send_whisper(user.id, f"Could not warp {', '.join(not_found)}.")
+            return
+        # Default: warp sender
         try:
-            if 'target_user' in locals():
-                await self.bot.highrise.move_user_to_room(target_user.id, room_id)
-                if target_user.id == user.id:
-                    await self.bot.highrise.send_whisper(user.id, f"Warping you to room '{key}'.")
-                else:
-                    await self.bot.highrise.send_whisper(user.id, f"Warping @{target_user.username} with id {target_user.id} to room '{key}'.")
-            else:
-                # Support multiple user mentions: !portal <room> @user1 @user2 ...
-                mentioned_usernames = [arg[1:] for arg in args[1:] if arg.startswith("@")]
-                key = args[0]
-                room_id = portals.get(key, key if len(key) == 24 else None)
-                if not room_id:
-                    await self.bot.highrise.send_whisper(user.id, f"No portal named '{key}' and not a valid room ID.")
-                    return
-                if mentioned_usernames:
-                    from config.config import get
-                    bot_name = get('bot_name')
-                    users_resp = await self.bot.highrise.get_room_users()
-                    if not hasattr(users_resp, 'content'):
-                        await self.bot.highrise.send_whisper(user.id, "Could not fetch room users.")
-                        return
-                    moved = []
-                    not_found = []
-                    for username in mentioned_usernames:
-                        if bot_name and username.lower() == bot_name.lower():
-                            # Warp bot itself
-                            import os
-                            flag_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'runtime', 'flags')
-                            os.makedirs(flag_dir, exist_ok=True)
-                            flag_path = os.path.join(flag_dir, 'warp.flag')
-                            with open(flag_path, 'w') as f:
-                                f.write(room_id)
-                            # Send whisper BEFORE exit
-                            await self.bot.highrise.send_whisper(user.id, f"Bot is now moving to room '{key}' and will restart.")
-                            os._exit(1)
-                        found = False
-                        for u, _ in users_resp.content:
-                            if u.username.lower() == username.lower():
-                                try:
-                                    await self.bot.highrise.move_user_to_room(u.id, room_id)
-                                    moved.append(f"@{u.username}")
-                                except Exception as exc:
-                                    not_found.append(f"@{u.username} (error: {exc})")
-                                found = True
-                                break
-                        if not found:
-                            not_found.append(f"@{username}")
-                    if moved:
-                        await self.bot.highrise.send_whisper(user.id, f"Warped {', '.join(moved)} to room '{key}'.")
-                    if not_found:
-                        await self.bot.highrise.send_whisper(user.id, f"Could not warp {', '.join(not_found)}.")
-                else:
-                    # No user mentions, default to sender
-                    target_user = user
-                    await self.bot.highrise.move_user_to_room(target_user.id, room_id)
-                    await self.bot.highrise.send_whisper(user.id, f"Warping you to room '{key}'.")
+            await self.bot.highrise.move_user_to_room(user.id, room_id)
+            await self.bot.highrise.send_whisper(user.id, f"Warping you to room '{key}'.")
         except Exception as exc:
             await self.bot.highrise.send_whisper(user.id, f"Failed to warp: {exc}")

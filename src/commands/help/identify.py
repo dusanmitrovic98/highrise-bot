@@ -18,8 +18,8 @@ class Command(CommandBase):
         else:
             target_user = user
         # Separate roles and permissions
-        from src.utility.utility import load_permissions
-        data = load_permissions()
+        from src.utility.utility import load_users
+        data = load_users()
         user_entry = data["users"].get(target_user.id, {})
         roles = user_entry.get("roles", [])
         extra_permissions = user_entry.get("extra_permissions", [])
