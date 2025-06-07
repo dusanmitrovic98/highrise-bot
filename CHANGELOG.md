@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.0.19] - 2025-06-07
+
+### Added
+- New AI-powered ask command (`ask.py`) that allows users to ask questions in chat or DMs and receive responses from the AI.
+- Supports both public chat and direct messages, with improved error handling and user feedback.
+- Command can be triggered by prefix or keywords ("seb", "sebastian").
+
 ## [v0.0.18] - 2025-06-07
 
 ### Changed
