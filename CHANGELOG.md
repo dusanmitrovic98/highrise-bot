@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.0.20] - 2025-06-07
+### Added
+- The !react command now supports custom sequences of reactions (e.g., !react heart clap wink @user 3 interval=2).
+- You can combine any pattern of supported reactions and repeat them for a specified count and interval.
+- The command works for self, specific users, or all users in the room.
+
+### Changed
+- Improved argument parsing and error messages for the !react command.
+
 ## [v0.0.19] - 2025-06-07
 
 ### Added
