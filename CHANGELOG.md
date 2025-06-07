@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.22] - 2025-06-07
+### Added
+- Support for multiple categories per emote (comma-separated, stored as arrays).
+- !emote list categories now displays categories in numbered blocks.
+
+### Changed
+- All emote category fields are now arrays for consistency and future flexibility.
+- Listing emotes by category now works with multi-category emotes.
+
+### Fixed
+- Fixed JSONDecodeError on invalid emote data.
+- Improved robustness of emote category handling.
+
 ## [0.0.21] - 2025-06-07
 
 ### Added

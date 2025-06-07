@@ -1,16 +1,17 @@
-import os
-import json
 import asyncio
-from highrise import User
+import json
+import os
+from venv import logger
+
+from highrise import AnchorPosition, Position, User
 from src.commands.command_base import CommandBase
-from src.utility.get_user_by_username import get_user_by_username
 
 EMOTES_PATH = os.path.join(os.path.dirname(__file__), '../../config/commands/emotes.json')
 RESERVED = {"list", "save", "update", "remove", "details", "move", "loop", "interval", "all"}
 
 class Command(CommandBase):
     name = "emote"
-    description = "Play, list, save, update, remove, move, or show details for emotes. Usage: !emote <name|id|number> [loop] [interval] [all|@user ...] | !emote list | !emote save ... | !emote update ... | !emote remove ... | !emote details ... | !emote move ... | !emote stop"
+    description = "Play, list, save, update, remove, or show details for emotes. Usage: !emote <name|id|number> [loop] [interval] [all|@user ...] | !emote list | !emote save ... | !emote update ... | !emote remove ... | !emote details ... | !emote move ... | !emote stop"
     aliases = []
     cooldown = 0
     permissions = []
@@ -21,6 +22,7 @@ class Command(CommandBase):
     def __init__(self, bot):
         super().__init__(bot)
         self.add_handler("on_chat", self.on_chat_handler)
+        self.add_handler("on_move", self.on_move_handler)
 
     def _parse_kv_args(self, args):
         # Support key="value with spaces" or key=value
@@ -63,19 +65,55 @@ class Command(CommandBase):
                 await self.bot.highrise.send_whisper(user.id, "No emote loop running for you.")
             return
         if cmd == "list":
-            # List all emotes in blocks
-            names = [e["name"] for e in emotes]
-            block = []
-            for i, name in enumerate(names, 1):
-                block.append(f"{i}. {name}")
-                if len(block) == 10 or i == len(names):
-                    await self.bot.highrise.send_whisper(user.id, "EMOTES:\n" + "\n".join(block))
-                    block = []
-            return
+            # !emote list [category_name] | !emote categories
+            if len(args) > 1 and args[1].lower() == "categories":
+                # List all unique categories in blocks with numbering
+                categories = set()
+                for e in emotes:
+                    cats = e.get("category", [])
+                    if isinstance(cats, str):
+                        cats = [cats]
+                    for c in cats:
+                        if c:
+                            categories.add(c)
+                categories = sorted(categories)
+                block = []
+                for i, cat in enumerate(categories, 1):
+                    block.append(f"{i}. {cat}")
+                    if len(block) == 10 or i == len(categories):
+                        await self.bot.highrise.send_whisper(user.id, "CATEGORIES:\n" + "\n".join(block))
+                        block = []
+                if not categories:
+                    await self.bot.highrise.send_whisper(user.id, "No categories found.")
+                return
+            elif len(args) > 1:
+                # List emotes by category
+                category = args[1].lower()
+                filtered = [e["name"] for e in emotes if any(c.lower() == category for c in (e.get("category", []) if isinstance(e.get("category", []), list) else [e.get("category", "")]))]
+                if not filtered:
+                    await self.bot.highrise.send_whisper(user.id, f"No emotes found in category '{category}'.")
+                    return
+                block = []
+                for i, name in enumerate(filtered, 1):
+                    block.append(f"{i}. {name}")
+                    if len(block) == 10 or i == len(filtered):
+                        await self.bot.highrise.send_whisper(user.id, f"EMOTES in '{category}':\n" + "\n".join(block))
+                        block = []
+                return
+            else:
+                # List all emotes in blocks
+                names = [e["name"] for e in emotes]
+                block = []
+                for i, name in enumerate(names, 1):
+                    block.append(f"{i}. {name}")
+                    if len(block) == 10 or i == len(names):
+                        await self.bot.highrise.send_whisper(user.id, "EMOTES:\n" + "\n".join(block))
+                        block = []
+                return
         if cmd == "save":
-            # !emote save name emote_id [description=...] [category=...] [icon=...] [interval=...]
+            # !emote save name emote_id [category=cat1,cat2,...] [interval=...]
             if len(args) < 3:
-                await self.bot.highrise.send_whisper(user.id, "Usage: !emote save <name> <id> [description=...] [category=...] [icon=...] [interval=...]")
+                await self.bot.highrise.send_whisper(user.id, "Usage: !emote save <name> <id> [category=cat1,cat2,...] [interval=...]")
                 return
             name, emote_id = args[1], args[2]
             if name in RESERVED or any(e["name"] == name for e in emotes):
@@ -83,12 +121,9 @@ class Command(CommandBase):
                 return
             kv_args = self._parse_kv_args(args[3:])
             new_emote = {"name": name, "id": emote_id}
-            if "description" in kv_args:
-                new_emote["description"] = kv_args["description"]
             if "category" in kv_args:
-                new_emote["category"] = kv_args["category"]
-            if "icon" in kv_args:
-                new_emote["icon"] = kv_args["icon"]
+                cats = [c.strip() for c in kv_args["category"].split(",") if c.strip()]
+                new_emote["category"] = cats
             if "interval" in kv_args:
                 try:
                     new_emote["interval"] = float(kv_args["interval"])
@@ -99,20 +134,17 @@ class Command(CommandBase):
             await self.bot.highrise.send_whisper(user.id, f"Emote '{name}' saved.")
             return
         if cmd == "update":
-            # !emote update name [description=...] [category=...] [icon=...] [interval=...]
+            # !emote update name [category=cat1,cat2,...] [interval=...]
             if len(args) < 2:
-                await self.bot.highrise.send_whisper(user.id, "Usage: !emote update <name> [description=...] [category=...] [icon=...] [interval=...]")
+                await self.bot.highrise.send_whisper(user.id, "Usage: !emote update <name> [category=cat1,cat2,...] [interval=...]")
                 return
             name = args[1]
             kv_args = self._parse_kv_args(args[2:])
             for emote in emotes:
                 if emote["name"] == name:
-                    if "description" in kv_args:
-                        emote["description"] = kv_args["description"]
                     if "category" in kv_args:
-                        emote["category"] = kv_args["category"]
-                    if "icon" in kv_args:
-                        emote["icon"] = kv_args["icon"]
+                        cats = [c.strip() for c in kv_args["category"].split(",") if c.strip()]
+                        emote["category"] = cats
                     if "interval" in kv_args:
                         try:
                             emote["interval"] = float(kv_args["interval"])
@@ -144,7 +176,10 @@ class Command(CommandBase):
             name = args[1]
             for emote in emotes:
                 if emote["name"] == name:
-                    details = f"Name: {emote['name']}\nId: {emote['id']}\nDescription: {emote.get('description', '')}\nCategory: {emote.get('category', '')}\nIcon: {emote.get('icon', '')}\nInterval: {emote.get('interval', 10)}"
+                    cats = emote.get('category', [])
+                    if isinstance(cats, str):
+                        cats = [cats]
+                    details = f"Name: {emote['name']}\nId: {emote['id']}\nCategories: {', '.join(cats)}\nInterval: {emote.get('interval', 10)}"
                     await self.bot.highrise.send_whisper(user.id, details)
                     return
             await self.bot.highrise.send_whisper(user.id, f"Emote '{name}' not found.")
@@ -167,6 +202,11 @@ class Command(CommandBase):
                     return
             await self.bot.highrise.send_whisper(user.id, f"Emote '{name}' not found.")
             return
+        # Stop emote loop for this user if running before playing a new emote
+        loop_task = self.emote_loops.get(user.id)
+        if loop_task and not loop_task.done():
+            loop_task.cancel()
+            await self.bot.highrise.send_whisper(user.id, "Stopped your previous emote loop.")
         # Play emote logic: by number, name, or id
         loop = False
         interval = None
@@ -227,6 +267,14 @@ class Command(CommandBase):
                     await asyncio.sleep(use_interval)
             except asyncio.CancelledError:
                 pass
+            except Exception as e:
+                # Optionally log the error or notify the user
+                logger.error(f"Error in emote loop for {target_id}: {e}")
+                await self.bot.highrise.send_whisper(target_id, "Emote loop stopped due to error.")
+            finally:
+                # Clean up reference after loop ends
+                if self.emote_loops.get(target_id):
+                    del self.emote_loops[target_id]
         if loop:
             for uid in user_ids:
                 task = asyncio.create_task(play_emote_loop(uid))
@@ -276,6 +324,12 @@ class Command(CommandBase):
                     break
         if emote:
             use_interval = interval if interval is not None else emote.get("interval", 3)
+            # Stop emote loop for this user if running before starting a new loop
+            if loop:
+                loop_task = self.emote_loops.get(user.id)
+                if loop_task and not loop_task.done():
+                    loop_task.cancel()
+                    await self.bot.highrise.send_whisper(user.id, "Stopped your previous emote loop.")
             async def play_emote_loop():
                 try:
                     while True:
@@ -288,4 +342,16 @@ class Command(CommandBase):
                 self.emote_loops[user.id] = task
                 await self.bot.highrise.send_whisper(user.id, f"Looping emote '{emote['name']}' for you.")
             else:
+                # Stop emote loop for this user if running before playing a new emote
+                loop_task = self.emote_loops.get(user.id)
+                if loop_task and not loop_task.done():
+                    loop_task.cancel()
+                    await self.bot.highrise.send_whisper(user.id, "Stopped your previous emote loop.")
                 await self.bot.highrise.send_emote(emote["id"], user.id)
+    
+    async def on_move_handler(self, user: User, destination: Position | AnchorPosition):
+        # Stop emote loop for this user if running
+        loop_task = self.emote_loops.get(user.id)
+        if loop_task and not loop_task.done():
+            loop_task.cancel()
+            await self.bot.highrise.send_whisper(user.id, "Stopped your emote loop due to move.")

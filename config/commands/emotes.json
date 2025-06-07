@@ -3,23 +3,28 @@
         {
             "name": "wave",
             "id": "emote-wave",
-            "description": "\"Wave",
-            "category": "\"greetings\"",
-            "icon": "\"https://example.com/icon.png\"",
+            "category": [
+                "greetings"
+            ],
             "interval": 5.0
         },
         {
             "name": "hello",
             "id": "emote-hello",
-            "description": "Say hello",
-            "category": "greetings",
-            "icon": "https://example.com/icon.png",
+            "category": [
+                "greetings"
+            ],
             "interval": 3
         },
         {
             "name": "ghostfloat",
             "id": "emote-ghost-idle",
-            "interval": 2.6
+            "interval": 2.6,
+            "category": [
+                "ghost",
+                "float",
+                "creepy"
+            ]
         }
     ]
 }
