@@ -41,6 +41,13 @@
                 "guest"
             ],
             "extra_permissions": []
+        },
+        "6842ad3df264f61f73f4a823": {
+            "username": "Franziska09",
+            "roles": [
+                "guest"
+            ],
+            "extra_permissions": []
         }
     }
 }
