@@ -1,5 +1,4 @@
 import os
-import asyncio
 from collections import namedtuple
 from pathlib import Path
 
@@ -47,11 +46,6 @@ logger = logging.getLogger("highrise-bot")
 def should_log(section: str) -> bool:
     return getattr(loggers, section, False)
 
-def stop_loops(self, user_id: str) -> None:
-    """Stop the loop for a specific user."""
-    if user_id in self.ghost_loops and not self.ghost_loops[user_id].done():
-        self.ghost_loops[user_id].cancel()
-
 BotDefinition = namedtuple('BotDefinition', ['bot', 'room_id', 'api_token'])
 
 class Bot(BaseBot):
@@ -59,7 +53,6 @@ class Bot(BaseBot):
         self.command_handler = CommandHandler(self)
         self.room_id = room_id
         self.token = token
-        self.ghost_loops = {}  # Track running ghost loops per user
         super().__init__()
 
     async def before_start(cls, tg):
@@ -80,15 +73,6 @@ class Bot(BaseBot):
     async def on_chat(self, user: User, message: str) -> None:
         if should_log("chat"):
             logger.info(f"[CHAT   ] user={user} message={message}")
-        user_id = user.id
-        msg = message.strip().lower()
-        if msg == "ghost me":
-            if user_id not in self.ghost_loops or self.ghost_loops[user_id].done():
-                # Start the ghost loop
-                self.ghost_loops[user_id] = asyncio.create_task(self._ghost_loop(user_id))
-        elif msg == "stop":
-            # Stop the ghost loop
-            self.stop_loops(user_id)
         await handle_chat(self, user, message)
 
     async def on_whisper(self, user: User, message: str) -> None:
@@ -119,30 +103,12 @@ class Bot(BaseBot):
     async def on_user_leave(self, user: User) -> None:
         if should_log("user_leave"):
             logger.info(f"[LEAVE  ] user={user}")
-        user_id = user.id
-        # Cancel ghost loop if running
-        if user_id in self.ghost_loops and not self.ghost_loops[user_id].done():
-            self.ghost_loops[user_id].cancel()
         await handle_leave(self, user)
 
     async def on_message(self, user_id: str, conversation_id: str, is_new_conversation: bool) -> None:
         if should_log("message"):
             logger.info(f"[MESSAGE] user_id={user_id} conversation_id={conversation_id} is_new_conversation={is_new_conversation}")
         await handle_message(self, user_id, conversation_id, is_new_conversation)
-
-    async def _ghost_loop(self, user_id: str):
-        try:
-            while True:
-                try:
-                    await self.highrise.send_emote("emote-ghost-idle", user_id)
-                except Exception as e:
-                    # Stop loop if user is not in room
-                    if hasattr(e, 'args') and e.args and 'Target user not in room' in str(e.args[0]):
-                        break
-                    raise
-                await asyncio.sleep(2.6)
-        except asyncio.CancelledError:
-            pass
 
     async def run(self, room_id, token):
         self.room_id = room_id

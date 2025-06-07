@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.0.24] - 2025-06-07
 
+### Removed
+- The "ghost me" chat command and all related ghost loop logic from the bot.
+- Unused asyncio import after feature removal.
+
+## [0.0.24] - 2025-06-07
+
 ### Changed
 - Refactored emote command: centralized the logic for stopping user emote loops into a single stop_emote_loop method, reducing code duplication and improving maintainability.
 
