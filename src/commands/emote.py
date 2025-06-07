@@ -294,8 +294,7 @@ class Command(CommandBase):
         if loop:
             for uid in user_ids:
                 task = asyncio.create_task(play_emote_loop(uid))
-                if uid == user.id:
-                    self.emote_loops[user.id] = task
+                self.emote_loops[uid] = task
             await self.bot.highrise.send_whisper(user.id, f"Looping emote '{emote['name']}' for {', '.join(user_ids)}.")
         else:
             for uid in user_ids:
