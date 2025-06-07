@@ -46,8 +46,57 @@ class Command(CommandBase):
                 await self.bot.highrise.send_whisper(user.id, f"Outfit '{name}' removed.")
             else:
                 await self.bot.highrise.send_whisper(user.id, f"Outfit '{name}' not found.")
+        elif cmd == "wear" and len(args) > 1:
+            name = args[1]
+            wardrobe = self._load_wardrobe()
+            if name in wardrobe:
+                outfit = wardrobe[name]
+                # Ensure outfit is a list of Item objects (not dicts)
+                from highrise.models import Item
+                if isinstance(outfit, dict):
+                    outfit = list(outfit.values())
+                if isinstance(outfit, list):
+                    try:
+                        item_objs = [Item(**item) if isinstance(item, dict) else item for item in outfit]
+                    except Exception as e:
+                        await self.bot.highrise.send_whisper(user.id, f"Failed to parse outfit '{name}': {e}")
+                        return
+                else:
+                    await self.bot.highrise.send_whisper(user.id, f"Outfit '{name}' is not a valid list.")
+                    return
+                try:
+                    await self.bot.highrise.set_outfit(item_objs)
+                    await self.bot.highrise.send_whisper(user.id, f"Wearing outfit '{name}'.")
+                except Exception as e:
+                    await self.bot.highrise.send_whisper(user.id, f"Failed to wear outfit '{name}': {e}")
+            else:
+                await self.bot.highrise.send_whisper(user.id, f"Outfit '{name}' not found.")
+        elif cmd == "copy" and len(args) > 1:
+            target = args[1]
+            if target.startswith("@"): 
+                username = target[1:]
+            else:
+                username = target
+            from src.utility.get_user_by_username import get_user_by_username
+            target_user = await get_user_by_username(self.bot, username)
+            if not target_user:
+                await self.bot.highrise.send_whisper(user.id, f"User {username} not found in the room.")
+                return
+            try:
+                resp = await self.bot.highrise.get_user_outfit(target_user.id)
+                outfit = resp.outfit if hasattr(resp, "outfit") else getattr(resp, "items", None)
+            except Exception:
+                outfit = None
+            if not outfit:
+                await self.bot.highrise.send_whisper(user.id, f"Could not get outfit for {username}.")
+                return
+            try:
+                await self.bot.highrise.set_outfit(outfit)
+                await self.bot.highrise.send_whisper(user.id, f"Set my outfit to match {username}.")
+            except Exception:
+                await self.bot.highrise.send_whisper(user.id, f"Failed to set my outfit to {username}'s outfit.")
         else:
-            await self.bot.highrise.send_whisper(user.id, "Usage: !wardrobe [save <name>|remove <name>]")
+            await self.bot.highrise.send_whisper(user.id, "Usage: !wardrobe [save <name>|remove <name>|wear <name>]")
 
     def _load_wardrobe(self):
         if not os.path.exists(WARDROBE_PATH):

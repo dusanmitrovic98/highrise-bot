@@ -29,6 +29,14 @@
         {
             "name": "annoyed",
             "id": "idle-loop-annoyed"
+        },
+        {
+            "name": "irritated",
+            "id": "idle-angry",
+            "category": [
+                "angry",
+                "mood"
+            ]
         }
     ]
 }
