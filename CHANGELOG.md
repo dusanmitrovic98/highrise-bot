@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.0.18] - 2025-06-07
+
+### Changed
+- Refactored message event handler logic for improved clarity and modularity.
+- Renamed `modulate_last_message_and_user` to `handle_last_message_and_user`.
+- Extracted helper functions for fetching messages, user info, and logging.
+- Enhanced maintainability and readability of the message event workflow.
+
 ## [0.0.17] - 2025-06-06
 
 ### Added

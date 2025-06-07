@@ -1,89 +1,128 @@
 import json
+import asyncio
 import logging
+
 from pathlib import Path
 
 from .dispatch_util import dispatch_event
 
 USERS_PATH = Path("config/users.json")
 
-async def register_or_update_user(user_id, username):
-    # Load users.json
-    if USERS_PATH.exists():
+async def on_message(
+    bot, user_id: str, conversation_id: str, is_new_conversation: bool
+) -> None:
+    """
+    Handles incoming messages, logs the last message, and manages user data.
+    Refactored for clarity and efficiency.
+    """
+    await handle_last_message_and_user(bot, user_id, conversation_id)
+    await dispatch_event(bot, "on_message", user_id, conversation_id, is_new_conversation)
+
+
+def get_username_from_user_info(user_info):
+    """
+    Extract the username from a user_info object, handling both possible structures.
+    """
+    if hasattr(user_info, "user") and hasattr(user_info.user, "username"):
+        return user_info.user.username
+    return getattr(user_info, "username", None)
+
+
+def modulate(value, min_value, max_value):
+    """
+    Clamp value between min_value and max_value.
+    """
+    return max(min_value, min(value, max_value))
+
+
+def load_users_data():
+    """
+    Load users data from USERS_PATH, or return a default structure if not found.
+    """
+    try:
         with open(USERS_PATH, "r", encoding="utf-8") as f:
-            users_data = json.load(f)
-    else:
-        users_data = {"users": {}}
-    # Register or update user
-    user_entry = users_data["users"].get(user_id, {})
-    user_entry["username"] = username
-    user_entry.setdefault("roles", ["guest"])
-    user_entry.setdefault("extra_permissions", [])
-    # Add more fields as needed
-    users_data["users"][user_id] = user_entry
+            return json.load(f)
+    except FileNotFoundError:
+        return {"users": {}}
+
+
+def save_users_data(users_data):
     with open(USERS_PATH, "w", encoding="utf-8") as f:
         json.dump(users_data, f, indent=4)
 
-async def handle_dm_subscribe(bot, user_id, username, conversation_id):
-    await register_or_update_user(user_id, username)
-    await bot.highrise.send_message(conversation_id, "Welcome! You are now subscribed. Your role is 'guest'.")
 
-async def handle_dm_opening(bot, user_id, username, conversation_id):
-    await register_or_update_user(user_id, username)
-    guide_url = "https://github.com/dusanmitrovic98/highrise-bot/blob/main/GUIDE.md"
-    welcome_message = (
-        "Welcome!\n\nFor help and usage instructions, please see the next message for our official guide link.\n\n"
-        "⚠️ Security Notice: Only open links from trusted sources. By clicking any link, you acknowledge you are doing so at your own risk.\n"
-        "The GUIDE is a markdown (.md) file on GitHub—this link is safe to open."
-    )
-    await bot.highrise.send_message(conversation_id, welcome_message)
-    await bot.highrise.send_message(conversation_id, guide_url)
-
-async def on_message(bot, user_id: str, conversation_id: str, is_new_conversation: bool) -> None:
-    logging.info(f"[DEBUG] on_message handler called: user_id={user_id}, conversation_id={conversation_id}, is_new={is_new_conversation}")
-    # Try to get username from room users or fallback to user_id
-    username = None
-    try:
-        users_resp = await bot.highrise.get_room_users()
-        if hasattr(users_resp, 'content'):
-            for user, _ in users_resp.content:
-                if user.id == user_id:
-                    username = user.username
-                    break
-    except Exception:
-        pass
-    # Load users.json to check if user exists
-    if USERS_PATH.exists():
-        with open(USERS_PATH, "r", encoding="utf-8") as f:
-            users_data = json.load(f)
-    else:
-        users_data = {"users": {}}
-    user_exists = user_id in users_data["users"]
-    # If user does not exist, register and send onboarding
-    if not user_exists:
-        await handle_dm_opening(bot, user_id, username, conversation_id)
+async def ensure_user_in_data(bot, user_id: str, users_data: dict) -> None:
+    """
+    Ensure the user exists in users_data; if not, fetch and add them.
+    """
+    if user_id not in users_data["users"]:
+        user_info = await bot.webapi.get_user(user_id)
+        username = get_username_from_user_info(user_info)
         users_data["users"][user_id] = {
             "username": username,
             "roles": ["guest"],
             "extra_permissions": []
         }
-        with open(USERS_PATH, "w", encoding="utf-8") as f:
-            json.dump(users_data, f, indent=4)
-        return
-    # Register/update user on every DM if username is available
-    if username:
-        await register_or_update_user(user_id, username)
-    # Check for !subscribe command
-    if hasattr(bot, 'last_dm_users'):
-        last_dm_users = bot.last_dm_users
-    else:
-        last_dm_users = set()
-        bot.last_dm_users = last_dm_users
-    # Handle !subscribe
-    messages = await bot.highrise.get_messages(conversation_id)
-    if hasattr(messages, "messages") and messages.messages:
-        last_message = messages.messages[-1]
-        if last_message.content.strip().lower() == "!subscribe":
-            await handle_dm_subscribe(bot, user_id, username, conversation_id)
-            return
-        logging.info(f"(dm) {user_id}: {last_message.content}")
-    await dispatch_event(bot, "on_message", user_id, conversation_id, is_new_conversation)
+        save_users_data(users_data)
+
+
+async def fetch_last_message(bot, conversation_id: str):
+    """
+    Fetch the last message from a conversation.
+    """
+    messages_response = await bot.highrise.get_messages(conversation_id)
+    messages = getattr(messages_response, "messages", [])
+    if messages:
+        return messages[0]
+    return None
+
+
+async def fetch_user_infos(bot, user_ids):
+    """
+    Fetch user info objects for a list of user IDs.
+    """
+    user_infos = await asyncio.gather(*(bot.webapi.get_user(uid) for uid in user_ids))
+    return dict(zip(user_ids, user_infos))
+
+
+def log_last_message(last_msg, user_id, user_info_map):
+    """
+    Log the last message with user label and username.
+    """
+    last_msg_user_info = user_info_map.get(last_msg.sender_id)
+    last_msg_username = get_username_from_user_info(last_msg_user_info)
+    user_label = "[USER]" if last_msg.sender_id == user_id else "[BOT ]"
+    logging.info(f"[LAST MESSAGE] {user_label} [{last_msg_username}] {last_msg.content}")
+
+
+def prepare_user_ids_to_fetch(user_id, last_msg):
+    """
+    Prepare a list of user IDs to fetch info for.
+    """
+    user_ids = [user_id]
+    if last_msg.sender_id != user_id:
+        user_ids.append(last_msg.sender_id)
+    return user_ids
+
+
+async def ensure_user_in_data_async(bot, user_id):
+    """
+    Load users data and ensure the user is present.
+    """
+    users_data = load_users_data()
+    await ensure_user_in_data(bot, user_id, users_data)
+
+
+async def handle_last_message_and_user(bot, user_id: str, conversation_id: str) -> None:
+    """
+    Fetches and logs the last message in a conversation and ensures the user is present in user data.
+    """
+    try:
+        last_msg = await fetch_last_message(bot, conversation_id)
+        if last_msg:
+            user_ids_to_fetch = prepare_user_ids_to_fetch(user_id, last_msg)
+            user_info_map = await fetch_user_infos(bot, user_ids_to_fetch)
+            log_last_message(last_msg, user_id, user_info_map)
+    except Exception as e:
+        logging.error(f"Error fetching last message: {e}")
+    await ensure_user_in_data_async(bot, user_id)

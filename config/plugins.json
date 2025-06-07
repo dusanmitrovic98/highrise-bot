@@ -100,5 +100,12 @@
     "permissions": [],
     "aliases": [],
     "cooldown": 0
+  },
+  "outfit": {
+    "name": "outfit",
+    "description": "Copy, set, or remove outfit items. Usage: !outfit copy <@user|user_id>, !outfit set <item_id>, !outfit remove <item_id>",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
   }
 }

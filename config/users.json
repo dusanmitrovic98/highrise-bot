@@ -1,14 +1,14 @@
 {
     "users": {
-        "60e4d156ade36479457a97de": {
-            "username": "Semmey",
+        "6807a86ebcff1952758703b3": {
+            "username": "dule98",
             "roles": [
                 "owner"
             ],
             "extra_permissions": []
         },
-        "6807a86ebcff1952758703b3": {
-            "username": "dule98",
+        "60e4d156ade36479457a97de": {
+            "username": "Semmey",
             "roles": [
                 "owner"
             ],
@@ -25,6 +25,13 @@
             "username": "Boogio",
             "roles": [
                 "guest"
+            ],
+            "extra_permissions": []
+        },
+        "658780270141c6c8ed93835e": {
+            "username": "teddy998",
+            "roles": [
+                "owner"
             ],
             "extra_permissions": []
         }
