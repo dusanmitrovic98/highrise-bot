@@ -71,12 +71,15 @@ class Command(CommandBase):
                 categories = set()
                 for e in emotes:
                     cats = e.get("category", [])
+                    # Always treat as list, filter to non-empty strings, lowercase for uniqueness
                     if isinstance(cats, str):
                         cats = [cats]
                     for c in cats:
-                        if c:
-                            categories.add(c)
-                categories = sorted(categories)
+                        if isinstance(c, str):
+                            c = c.strip()
+                            if c:
+                                categories.add(c)
+                categories = sorted(categories, key=lambda x: x.lower())
                 block = []
                 for i, cat in enumerate(categories, 1):
                     block.append(f"{i}. {cat}")
@@ -88,8 +91,8 @@ class Command(CommandBase):
                 return
             elif len(args) > 1:
                 # List emotes by category
-                category = args[1].lower()
-                filtered = [e["name"] for e in emotes if any(c.lower() == category for c in (e.get("category", []) if isinstance(e.get("category", []), list) else [e.get("category", "")]))]
+                category = args[1].strip().lower()
+                filtered = [e["name"] for e in emotes if any(isinstance(c, str) and c.strip().lower() == category for c in (e.get("category", []) if isinstance(e.get("category", []), list) else [e.get("category", "")]))]
                 if not filtered:
                     await self.bot.highrise.send_whisper(user.id, f"No emotes found in category '{category}'.")
                     return
@@ -122,7 +125,9 @@ class Command(CommandBase):
             kv_args = self._parse_kv_args(args[3:])
             new_emote = {"name": name, "id": emote_id}
             if "category" in kv_args:
-                cats = [c.strip() for c in kv_args["category"].split(",") if c.strip()]
+                cats = [c.strip().lower() for c in kv_args["category"].split(",") if c.strip()]
+                # Deduplicate and filter out empty
+                cats = list(dict.fromkeys([c for c in cats if c]))
                 new_emote["category"] = cats
             if "interval" in kv_args:
                 try:
@@ -143,7 +148,8 @@ class Command(CommandBase):
             for emote in emotes:
                 if emote["name"] == name:
                     if "category" in kv_args:
-                        cats = [c.strip() for c in kv_args["category"].split(",") if c.strip()]
+                        cats = [c.strip().lower() for c in kv_args["category"].split(",") if c.strip()]
+                        cats = list(dict.fromkeys([c for c in cats if c]))
                         emote["category"] = cats
                     if "interval" in kv_args:
                         try:
@@ -169,20 +175,30 @@ class Command(CommandBase):
             await self.bot.highrise.send_whisper(user.id, f"Emote '{name}' removed.")
             return
         if cmd == "details":
-            # !emote details name
+            # !emote details name|number
             if len(args) < 2:
-                await self.bot.highrise.send_whisper(user.id, "Usage: !emote details <name>")
+                await self.bot.highrise.send_whisper(user.id, "Usage: !emote details <name|number>")
                 return
-            name = args[1]
-            for emote in emotes:
-                if emote["name"] == name:
-                    cats = emote.get('category', [])
-                    if isinstance(cats, str):
-                        cats = [cats]
-                    details = f"Name: {emote['name']}\nId: {emote['id']}\nCategories: {', '.join(cats)}\nInterval: {emote.get('interval', 10)}"
-                    await self.bot.highrise.send_whisper(user.id, details)
-                    return
-            await self.bot.highrise.send_whisper(user.id, f"Emote '{name}' not found.")
+            key = args[1]
+            emote = None
+            if key.isdigit():
+                idx = int(key) - 1
+                if 0 <= idx < len(emotes):
+                    emote = emotes[idx]
+            else:
+                for e in emotes:
+                    if e["name"] == key:
+                        emote = e
+                        break
+            if not emote:
+                await self.bot.highrise.send_whisper(user.id, f"Emote '{key}' not found.")
+                return
+            cats = emote.get('category', [])
+            if isinstance(cats, str):
+                cats = [cats]
+            cats = [c for c in cats if isinstance(c, str) and c.strip()]
+            details = f"Name: {emote['name']}\nId: {emote['id']}\nCategories: {', '.join(cats)}\nInterval: {emote.get('interval', 10)}"
+            await self.bot.highrise.send_whisper(user.id, details)
             return
         if cmd == "move":
             # !emote move emote_name position_index

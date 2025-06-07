@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.23] - 2025-06-07
+### Added
+- !emote details now supports both emote names and numbers (by index).
+
+### Fixed
+- If !emote details is called with an invalid name or number, it returns early and does not stop any running emote loop.
+- Improved robustness for category handling in details and lookup logic.
+
 ## [0.0.22] - 2025-06-07
 ### Added
 - Support for multiple categories per emote (comma-separated, stored as arrays).

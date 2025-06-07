@@ -25,6 +25,10 @@
                 "float",
                 "creepy"
             ]
+        },
+        {
+            "name": "annoyed",
+            "id": "idle-loop-annoyed"
         }
     ]
 }
