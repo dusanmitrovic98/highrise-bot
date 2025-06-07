@@ -21,17 +21,13 @@ class Command(CommandBase):
     @staticmethod
     def _extract_username(user_obj):
         """Extract username from user object, supporting nested user attribute."""
-        if hasattr(user_obj, "username"):
-            return user_obj.username
-        user = getattr(user_obj, "user", None)
-        return getattr(user, "username", None)
+        return getattr(user_obj, "username", getattr(getattr(user_obj, "user", None), "username", None))
 
     def _should_respond(self, message: str):
         msg = message.strip().lower()
         if msg.startswith(f"{self.prefix}{self.name}"):
             return True
-        words = set(msg.split())
-        return bool(self.keywords & words)
+        return any(kw in msg.split() for kw in self.keywords)
 
     async def _get_users(self):
         users = await self.bot.highrise.get_room_users()
@@ -66,8 +62,8 @@ class Command(CommandBase):
 
     @staticmethod
     async def _handle_error(send_func, log_message, error_message=None):
-        if error_message:
-            await send_func(error_message)
+        msg = error_message or "Sorry, something went wrong with the AI response."
+        await send_func(msg)
         logging.error(log_message, exc_info=True)
 
     async def execute(self, user: User, args: list, message: str):
@@ -106,7 +102,7 @@ class Command(CommandBase):
             messages = getattr(messages_response, "messages", [])
             if not messages:
                 return
-            last_msg = messages[0]  # TODO: Confirm if this is the latest message; adjust if needed
+            last_msg = messages[0]
             message_content = getattr(last_msg, "content", "")
             if not self._should_respond(message_content):
                 return
