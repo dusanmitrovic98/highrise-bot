@@ -8,7 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.24] - 2025-06-07
+
+### Changed
+- Refactored emote command: centralized the logic for stopping user emote loops into a single stop_emote_loop method, reducing code duplication and improving maintainability.
+
 ## [0.0.23] - 2025-06-07
+
 ### Added
 - !emote details now supports both emote names and numbers (by index).
 

@@ -23,6 +23,7 @@ class Command(CommandBase):
         super().__init__(bot)
         self.add_handler("on_chat", self.on_chat_handler)
         self.add_handler("on_move", self.on_move_handler)
+        self.add_handler("on_leave", self.on_leave_handler)
 
     def _parse_kv_args(self, args):
         # Support key="value with spaces" or key=value
@@ -49,6 +50,16 @@ class Command(CommandBase):
         with open(EMOTES_PATH, 'w', encoding='utf-8') as f:
             json.dump({"emotes_free": emotes}, f, indent=4)
 
+    def stop_emote_loop(self, user_id, notify_reason=None):
+        loop_task = self.emote_loops.get(user_id)
+        if loop_task and not loop_task.done():
+            loop_task.cancel()
+            if notify_reason:
+                asyncio.create_task(self.bot.highrise.send_whisper(user_id, notify_reason))
+            del self.emote_loops[user_id]
+        elif notify_reason:
+            asyncio.create_task(self.bot.highrise.send_whisper(user_id, notify_reason))
+
     async def execute(self, user: User, args: list, message: str):
         emotes = self._load_emotes()
         if not args:
@@ -56,13 +67,7 @@ class Command(CommandBase):
             return
         cmd = args[0].lower()
         if cmd == "stop":
-            # Stop emote loop for this user
-            loop_task = self.emote_loops.get(user.id)
-            if loop_task and not loop_task.done():
-                loop_task.cancel()
-                await self.bot.highrise.send_whisper(user.id, "Stopped your emote loop.")
-            else:
-                await self.bot.highrise.send_whisper(user.id, "No emote loop running for you.")
+            self.stop_emote_loop(user.id, "Stopped your emote loop.")
             return
         if cmd == "list":
             # !emote list [category_name] | !emote categories
@@ -219,10 +224,7 @@ class Command(CommandBase):
             await self.bot.highrise.send_whisper(user.id, f"Emote '{name}' not found.")
             return
         # Stop emote loop for this user if running before playing a new emote
-        loop_task = self.emote_loops.get(user.id)
-        if loop_task and not loop_task.done():
-            loop_task.cancel()
-            await self.bot.highrise.send_whisper(user.id, "Stopped your previous emote loop.")
+        self.stop_emote_loop(user.id, "Stopped your previous emote loop.")
         # Play emote logic: by number, name, or id
         loop = False
         interval = None
@@ -301,18 +303,16 @@ class Command(CommandBase):
                 await self.bot.highrise.send_emote(emote["id"], uid)
             await self.bot.highrise.send_whisper(user.id, f"Played emote '{emote['name']}' for {', '.join(user_ids)}.")
 
+    async def on_leave_handler(self, user: User):
+        self.stop_emote_loop(user.id, "Stopped your emote loop due to leave.")
+
     async def on_chat_handler(self, user: User, message: str):
         emotes = self._load_emotes()
         msg = message.strip()
         lower_msg = msg.lower()
         # Stop loop if user says 'stop'
         if lower_msg == "stop":
-            loop_task = self.emote_loops.get(user.id)
-            if loop_task and not loop_task.done():
-                loop_task.cancel()
-                await self.bot.highrise.send_whisper(user.id, "Stopped your emote loop.")
-            else:
-                await self.bot.highrise.send_whisper(user.id, "No emote loop running for you.")
+            self.stop_emote_loop(user.id, "Stopped your emote loop.")
             return
         # Parse for loop/interval
         parts = msg.split()
@@ -341,10 +341,7 @@ class Command(CommandBase):
             use_interval = interval if interval is not None else emote.get("interval", 3)
             # Stop emote loop for this user if running before starting a new loop
             if loop:
-                loop_task = self.emote_loops.get(user.id)
-                if loop_task and not loop_task.done():
-                    loop_task.cancel()
-                    await self.bot.highrise.send_whisper(user.id, "Stopped your previous emote loop.")
+                self.stop_emote_loop(user.id, "Stopped your previous emote loop.")
             async def play_emote_loop():
                 try:
                     while True:
@@ -365,8 +362,4 @@ class Command(CommandBase):
                 await self.bot.highrise.send_emote(emote["id"], user.id)
     
     async def on_move_handler(self, user: User, destination: Position | AnchorPosition):
-        # Stop emote loop for this user if running
-        loop_task = self.emote_loops.get(user.id)
-        if loop_task and not loop_task.done():
-            loop_task.cancel()
-            await self.bot.highrise.send_whisper(user.id, "Stopped your emote loop due to move.")
+        self.stop_emote_loop(user.id, "Stopped your emote loop due to move.")

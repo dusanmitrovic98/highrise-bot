@@ -47,8 +47,12 @@ logger = logging.getLogger("highrise-bot")
 def should_log(section: str) -> bool:
     return getattr(loggers, section, False)
 
-BotDefinition = namedtuple('BotDefinition', ['bot', 'room_id', 'api_token'])
+def stop_loops(self, user_id: str) -> None:
+    """Stop the loop for a specific user."""
+    if user_id in self.ghost_loops and not self.ghost_loops[user_id].done():
+        self.ghost_loops[user_id].cancel()
 
+BotDefinition = namedtuple('BotDefinition', ['bot', 'room_id', 'api_token'])
 
 class Bot(BaseBot):
     def __init__(self, room_id=None, token=None):
@@ -84,8 +88,7 @@ class Bot(BaseBot):
                 self.ghost_loops[user_id] = asyncio.create_task(self._ghost_loop(user_id))
         elif msg == "stop":
             # Stop the ghost loop
-            if user_id in self.ghost_loops and not self.ghost_loops[user_id].done():
-                self.ghost_loops[user_id].cancel()
+            self.stop_loops(user_id)
         await handle_chat(self, user, message)
 
     async def on_whisper(self, user: User, message: str) -> None:
