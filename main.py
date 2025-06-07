@@ -141,5 +141,4 @@ if __name__ == "__main__":
             arun(__main__.main([bot_def]))
         except Exception as e:
             if should_log("main"):
-                logger.error(f"Bot crashed with exception: {e}. Restarting in 5 seconds...")
-            # time.sleep(5)
+                logger.error(f"Bot crashed with exception: {e}.")
