@@ -52,26 +52,27 @@ class Command(CommandBase):
         if len(targets) == 1 and targets[0].lower() == "all":
             users_resp = await self.bot.highrise.get_room_users()
             if hasattr(users_resp, 'content'):
-                for u, _ in users_resp.content:
-                    if u.id != self.bot.highrise.my_id:
-                        for i in range(count):
-                            for reaction in reactions:
-                                await self.bot.highrise.react(reaction, u.id)
-                                await asyncio.sleep(interval)
+                user_list = [u for u, _ in users_resp.content if u.id != self.bot.highrise.my_id]
+                if not user_list:
+                    return
+                for i in range(count):
+                    for idx, u in enumerate(user_list):
+                        reaction = reactions[i % len(reactions)]
+                        await self.bot.highrise.react(reaction, u.id)
+                        await asyncio.sleep(interval)
             return
         users_resp = await self.bot.highrise.get_room_users()
         if hasattr(users_resp, 'content'):
             usernames = [a[1:] for a in targets if a.startswith("@")]
-            found = False
-            for u, _ in users_resp.content:
-                if u.username.lower() in [name.lower() for name in usernames]:
-                    for i in range(count):
-                        for reaction in reactions:
-                            await self.bot.highrise.react(reaction, u.id)
-                            await asyncio.sleep(interval)
-                    found = True
-            if not found:
+            user_list = [u for u, _ in users_resp.content if u.username.lower() in [name.lower() for name in usernames]]
+            if not user_list:
                 await self.bot.highrise.chat("No specified users found in room.")
+                return
+            for i in range(count):
+                for idx, u in enumerate(user_list):
+                    reaction = reactions[i % len(reactions)]
+                    await self.bot.highrise.react(reaction, u.id)
+                    await asyncio.sleep(interval)
         else:
             # Fallback usage message if users_resp has no content
             await self.bot.highrise.chat(f"Usage: !react <reaction(s)> @user [count] [interval=seconds] or !react <reaction(s)> all [count] [interval=seconds]. Supported: {', '.join(REACTIONS)}")

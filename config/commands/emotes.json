@@ -37,6 +37,16 @@
                 "angry",
                 "mood"
             ]
+        },
+        {
+            "name": "ghostme",
+            "id": "emote-ghost-idle",
+            "category": [
+                "ghost",
+                "ghostme",
+                "float"
+            ],
+            "interval": 2.6
         }
     ]
 }
