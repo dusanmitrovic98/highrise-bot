@@ -48,6 +48,13 @@
                 "guest"
             ],
             "extra_permissions": []
+        },
+        "63e6743843e80a34aeec4805": {
+            "username": "xEdenxux",
+            "roles": [
+                "guest"
+            ],
+            "extra_permissions": []
         }
     }
 }
