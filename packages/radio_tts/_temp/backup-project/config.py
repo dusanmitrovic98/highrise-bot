@@ -3,5 +3,3 @@
 PORT = 5002
 # Set the default TTS (Text-to-Speech) voice
 TTS_VOICE = "hi-IN-MadhurNeural"
-# Set the buffer size for audio streaming (in bytes)
-BUFFER_SIZE = 4096
