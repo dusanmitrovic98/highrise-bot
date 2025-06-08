@@ -4,6 +4,7 @@ from highrise import User
 from config.config import config
 from src.commands.command_base import CommandBase
 from src.utility.ai import chat
+from packages.radio_tts.main import say_on_radio
 
 class Command(CommandBase):
     """
@@ -57,6 +58,7 @@ class Command(CommandBase):
             else:
                 response = await asyncio.get_running_loop().run_in_executor(None, lambda: result)
             await send_func(response.strip())
+            say_on_radio(response.strip())  # Stream the response on radio
         except Exception as e:
             await self._handle_error(send_func, f"[ASK] Error in ask response: {e}")
 

@@ -11,3 +11,5 @@ config/config.json
 config/permissions.json
 
 *.log
+
+*.mp3
