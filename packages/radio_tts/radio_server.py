@@ -16,6 +16,8 @@ current_audio = None
 # Event to signal when new audio is available
 global new_audio_event
 new_audio_event = asyncio.Event()
+# Use an asyncio.Queue for TTS jobs
+TTS_QUEUE = asyncio.Queue()
 # Path to a background audio file to loop when no TTS is available
 BACKGROUND_AUDIO = os.path.join(os.path.dirname(__file__), "background.mp3")
 SILENCE_AUDIO = os.path.join(os.path.dirname(__file__), "silence.mp3")
@@ -66,9 +68,39 @@ async def _async_stream_file(file_path, max_bytes=None):
     except Exception as e:
         print(f"[DEBUG] Error streaming file {file_path}: {e}")
 
+# Helper to stream a file asynchronously in chunks, transcoding to match stream format
+async def _async_stream_file_ffmpeg(file_path, max_bytes=None):
+    ffmpeg_cmd = [
+        'ffmpeg',
+        '-hide_banner', '-loglevel', 'error',
+        '-i', file_path,
+        '-f', 'mp3',
+        '-vn',
+        '-acodec', 'libmp3lame',
+        '-b:a', '128k',
+        '-'
+    ]
+    proc = await asyncio.create_subprocess_exec(
+        *ffmpeg_cmd,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
+    )
+    total = 0
+    try:
+        while True:
+            chunk = await proc.stdout.read(BUFFER_SIZE)
+            if not chunk:
+                break
+            yield chunk
+            total += len(chunk)
+            if max_bytes and total >= max_bytes:
+                break
+    finally:
+        proc.terminate()
+        await proc.wait()
+
 # HTTP handler to stream audio to clients (professional streaming logic)
 async def stream_audio(request):
-    global current_audio
     print("[DEBUG] New client connected to /stream endpoint.")
     response = web.StreamResponse(status=200, reason='OK', headers={
         'Content-Type': 'audio/mpeg',
@@ -81,22 +113,32 @@ async def stream_audio(request):
     last_played = None
     try:
         while True:
-            # Stream all available TTS files before returning to background
-            while current_audio and os.path.exists(current_audio) and current_audio != last_played:
-                print(f"[DEBUG] Streaming TTS audio: {current_audio}")
-                async for chunk in _async_stream_file(current_audio):
-                    await response.write(chunk)
-                    await response.drain()
-                last_played = current_audio
-                try:
-                    os.remove(current_audio)
-                    print(f"[DEBUG] Deleted played TTS file: {current_audio}")
-                except Exception as e:
-                    print(f"[DEBUG] Failed to delete TTS file: {e}")
-                current_audio = None
-                new_audio_event.clear()
-                # Check if another TTS file is available immediately
-                await asyncio.sleep(0)  # Yield control to allow set_new_audio to run
+            # Try to get a TTS job from the queue (non-blocking)
+            try:
+                tts_path = TTS_QUEUE.get_nowait()
+                print(f"[DEBUG] Got TTS job from queue: {tts_path}")
+                if os.path.exists(tts_path):
+                    print(f"[DEBUG] Streaming TTS audio: {tts_path}")
+                    try:
+                        async for chunk in _async_stream_file_ffmpeg(tts_path):
+                            print(f"[DEBUG] Sending TTS chunk of size: {len(chunk)}")
+                            await response.write(chunk)
+                            await response.drain()
+                        print(f"[DEBUG] Finished streaming TTS audio: {tts_path}")
+                        last_played = tts_path
+                    except Exception as e:
+                        print(f"[DEBUG] Error streaming TTS file: {e}")
+                    finally:
+                        try:
+                            os.remove(tts_path)
+                            print(f"[DEBUG] Deleted played TTS file: {tts_path}")
+                        except Exception as e:
+                            print(f"[DEBUG] Failed to delete TTS file: {e}")
+                else:
+                    print(f"[DEBUG] TTS file does not exist: {tts_path}")
+                continue  # After TTS, check for more TTS jobs
+            except asyncio.QueueEmpty:
+                pass  # No TTS jobs, play background
             # If no TTS, play background audio
             bg_path = BACKGROUND_AUDIO if os.path.exists(BACKGROUND_AUDIO) else None
             if not bg_path or not background_duration:
@@ -109,58 +151,67 @@ async def stream_audio(request):
                 bg_duration = get_mp3_duration(bg_path)
             else:
                 bg_duration = background_duration
-            print(f"[DEBUG] Streaming background audio: {bg_path}")
-            while True:
-                ffmpeg_cmd = [
-                    'ffmpeg',
-                    '-hide_banner', '-loglevel', 'error',
-                    '-i', bg_path,
-                    '-f', 'mp3',
-                    '-vn',
-                    '-acodec', 'libmp3lame',
-                    '-b:a', '128k',
-                    '-'
-                ]
+            # print(f"[DEBUG] Streaming background audio: {bg_path}")
+            ffmpeg_cmd = [
+                'ffmpeg',
+                '-hide_banner', '-loglevel', 'error',
+                '-i', bg_path,
+                '-f', 'mp3',
+                '-vn',
+                '-acodec', 'libmp3lame',
+                '-b:a', '128k',
+                '-'
+            ]
+            try:
+                ffmpeg_proc = await asyncio.create_subprocess_exec(
+                    *ffmpeg_cmd,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE
+                )
                 try:
-                    ffmpeg_proc = await asyncio.create_subprocess_exec(
-                        *ffmpeg_cmd,
-                        stdout=asyncio.subprocess.PIPE,
-                        stderr=asyncio.subprocess.PIPE
-                    )
                     while True:
                         read_chunk_task = asyncio.create_task(ffmpeg_proc.stdout.read(BUFFER_SIZE))
-                        wait_event_task = asyncio.create_task(new_audio_event.wait())
+                        queue_wait_task = asyncio.create_task(TTS_QUEUE.get())
                         done, pending = await asyncio.wait(
-                            [read_chunk_task, wait_event_task],
+                            [read_chunk_task, queue_wait_task],
                             return_when=asyncio.FIRST_COMPLETED
                         )
                         if read_chunk_task in done:
                             chunk = read_chunk_task.result()
                             if not chunk:
-                                wait_event_task.cancel()
+                                queue_wait_task.cancel()
                                 break
-                            await response.write(chunk)
-                            await response.drain()
-                        if wait_event_task in done and new_audio_event.is_set() and current_audio and os.path.exists(current_audio) and current_audio != last_played:
-                            print("[DEBUG] Interrupting background for TTS.")
+                            try:
+                                await response.write(chunk)
+                                await response.drain()
+                            except (ConnectionResetError, asyncio.CancelledError):
+                                print("[DEBUG] Client disconnected during background streaming.")
+                                read_chunk_task.cancel()
+                                queue_wait_task.cancel()
+                                ffmpeg_proc.terminate()
+                                await ffmpeg_proc.wait()
+                                return response
+                        if queue_wait_task in done:
+                            # New TTS job arrived, put it back and break
+                            tts_path = queue_wait_task.result()
+                            print(f"[DEBUG] Interrupting background for TTS: {tts_path}")
                             read_chunk_task.cancel()
                             ffmpeg_proc.terminate()
                             await ffmpeg_proc.wait()
+                            # Put the TTS job back for the next loop
+                            await TTS_QUEUE.put(tts_path)
                             break
-                        # Cancel any pending tasks to avoid warnings
                         for task in pending:
                             task.cancel()
                     await ffmpeg_proc.wait()
-                    if new_audio_event.is_set() and current_audio and os.path.exists(current_audio) and current_audio != last_played:
-                        break
-                except Exception as e:
-                    print(f"[DEBUG] ffmpeg streaming error: {e}")
-                    await asyncio.sleep(1)
-                # Loop background audio
-                if not (new_audio_event.is_set() and current_audio and os.path.exists(current_audio) and current_audio != last_played):
-                    print("[DEBUG] Looping background audio...")
-                    continue
-                break
+                except (ConnectionResetError, asyncio.CancelledError):
+                    print("[DEBUG] Client disconnected during background streaming (outer loop).")
+                    ffmpeg_proc.terminate()
+                    await ffmpeg_proc.wait()
+                    return response
+            except Exception as e:
+                print(f"[DEBUG] ffmpeg streaming error: {e}")
+                await asyncio.sleep(1)
     except (asyncio.CancelledError, ConnectionResetError) as e:
         print(f"[DEBUG] Client disconnected: {type(e).__name__}: {e}")
     except Exception as e:
@@ -169,17 +220,32 @@ async def stream_audio(request):
     return response
 
 # Function to set a new audio file for streaming and notify listeners
+async def enqueue_tts(audio_path):
+    print(f"[DEBUG] enqueue_tts called with: {audio_path}")
+    await TTS_QUEUE.put(audio_path)
+    print(f"[DEBUG] TTS job enqueued.")
+
 def set_new_audio(audio_path):
-    global current_audio
-    print(f"[DEBUG] set_new_audio called with: {audio_path}")
-    current_audio = audio_path
-    # Signal that new audio is available
-    new_audio_event.set()
-    print("[DEBUG] new_audio_event set.")
+    # For compatibility, keep this function, but use the queue
+    loop = asyncio.get_event_loop()
+    if loop.is_running():
+        asyncio.ensure_future(enqueue_tts(audio_path))
+    else:
+        loop.run_until_complete(enqueue_tts(audio_path))
 
 # Create the aiohttp web application and add the /stream route
 app = web.Application()
 app.router.add_get('/stream', stream_audio)
+
+# Graceful shutdown endpoint for the radio server
+async def shutdown(request):
+    print("[DEBUG] Shutdown endpoint called. Shutting down server gracefully.")
+    await request.app.shutdown()
+    await request.app.cleanup()
+    asyncio.get_event_loop().call_later(0.5, asyncio.get_event_loop().stop)
+    return web.Response(text="Server shutting down...")
+
+app.router.add_post('/shutdown', shutdown)
 
 # Periodic cleanup of old TTS files (older than 1 hour)
 async def cleanup_audio_cache():
@@ -192,7 +258,7 @@ async def cleanup_audio_cache():
                     print(f"[DEBUG] Cleaned up old TTS file: {file}")
             except Exception as e:
                 print(f"[DEBUG] Cleanup error: {e}")
-        await asyncio.sleep(1800)  # Run every 30 minutes
+        await asyncio.sleep(1800)  # Run every 1 minute
 
 # Function to run the radio server on the specified port
 def run_server(port=5002):
@@ -203,3 +269,25 @@ def run_server(port=5002):
     asyncio.set_event_loop(loop)
     loop.create_task(cleanup_audio_cache())
     web.run_app(app, port=port)
+
+# HTTP endpoint to trigger TTS and play on radio
+async def say_on_radio_endpoint(request):
+    try:
+        data = await request.json()
+        text = data.get('text')
+        print(f"[DEBUG] /say endpoint received text: {text}")
+        if not text:
+            print("[DEBUG] /say endpoint missing text!")
+            return web.json_response({'error': 'Missing text'}, status=400)
+        from . import tts
+        audio_path = await tts.text_to_speech(text)
+        print(f"[DEBUG] TTS audio_path generated: {audio_path}")
+        print(f"[DEBUG] Does TTS file exist? {os.path.exists(audio_path)}")
+        await enqueue_tts(audio_path)
+        print(f"[DEBUG] enqueue_tts called from /say endpoint with: {audio_path}")
+        return web.json_response({'status': 'ok', 'audio_path': audio_path})
+    except Exception as e:
+        print(f"[DEBUG] say_on_radio_endpoint error: {e}")
+        return web.json_response({'error': str(e)}, status=500)
+
+app.router.add_post('/say', say_on_radio_endpoint)

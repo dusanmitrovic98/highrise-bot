@@ -1,3 +1,4 @@
 aiohttp
 edge-tts
 mutagen
+requests
