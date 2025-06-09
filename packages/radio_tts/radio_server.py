@@ -119,15 +119,53 @@ async def stream_audio(request):
                 print(f"[DEBUG] Got TTS job from queue: {tts_path}")
                 if os.path.exists(tts_path):
                     print(f"[DEBUG] Streaming TTS audio: {tts_path}")
+                    # --- MIX TTS WITH BACKGROUND IN REAL TIME ---
+                    # Get duration of TTS
                     try:
-                        async for chunk in _async_stream_file_ffmpeg(tts_path):
-                            print(f"[DEBUG] Sending TTS chunk of size: {len(chunk)}")
+                        tts_audio = MP3(tts_path)
+                        tts_duration = tts_audio.info.length
+                    except Exception as e:
+                        print(f"[DEBUG] Could not get TTS duration: {e}")
+                        tts_duration = None
+                    # Use background or silence
+                    bg_path = BACKGROUND_AUDIO if os.path.exists(BACKGROUND_AUDIO) else SILENCE_AUDIO
+                    # ffmpeg command to mix TTS and background, boost TTS and lower BG
+                    ffmpeg_cmd = [
+                        'ffmpeg',
+                        '-hide_banner', '-loglevel', 'error',
+                        '-i', tts_path,
+                        '-ss', '0',
+                        '-t', str(tts_duration) if tts_duration else '10',
+                        '-i', bg_path,
+                        '-filter_complex', '[0:a]volume=2.0[a0];[1:a]volume=0.2[a1];[a0][a1]amix=inputs=2:duration=first:dropout_transition=2',
+                        '-f', 'mp3',
+                        '-vn',
+                        '-acodec', 'libmp3lame',
+                        '-b:a', '128k',
+                        '-'
+                    ]
+                    try:
+                        proc = await asyncio.create_subprocess_exec(
+                            *ffmpeg_cmd,
+                            stdout=asyncio.subprocess.PIPE,
+                            stderr=asyncio.subprocess.PIPE
+                        )
+                        ffmpeg_error = b""
+                        while True:
+                            chunk = await proc.stdout.read(BUFFER_SIZE)
+                            if not chunk:
+                                break
                             await response.write(chunk)
                             await response.drain()
-                        print(f"[DEBUG] Finished streaming TTS audio: {tts_path}")
+                        # Read any remaining stderr output
+                        ffmpeg_error += await proc.stderr.read()
+                        await proc.wait()
+                        if ffmpeg_error:
+                            print(f"[DEBUG] ffmpeg stderr: {ffmpeg_error.decode(errors='replace')}")
+                        print(f"[DEBUG] Finished streaming mixed TTS+BG audio: {tts_path}")
                         last_played = tts_path
                     except Exception as e:
-                        print(f"[DEBUG] Error streaming TTS file: {e}")
+                        print(f"[DEBUG] Error streaming mixed TTS+BG: {e}")
                     finally:
                         try:
                             os.remove(tts_path)
@@ -140,7 +178,7 @@ async def stream_audio(request):
             except asyncio.QueueEmpty:
                 pass  # No TTS jobs, play background
             # If no TTS, play background audio
-            bg_path = BACKGROUND_AUDIO if os.path.exists(BACKGROUND_AUDIO) else None
+            bg_path = CURRENT_SONG if os.path.exists(CURRENT_SONG) else BACKGROUND_AUDIO if os.path.exists(BACKGROUND_AUDIO) else None
             if not bg_path or not background_duration:
                 print("[DEBUG] No valid background audio, falling back to silence.mp3")
                 bg_path = SILENCE_AUDIO if os.path.exists(SILENCE_AUDIO) else None
@@ -233,9 +271,30 @@ def set_new_audio(audio_path):
     else:
         loop.run_until_complete(enqueue_tts(audio_path))
 
+# Add a global for the current song path
+CURRENT_SONG = BACKGROUND_AUDIO
+
+# Endpoint to switch the radio song
+async def switch_song_endpoint(request):
+    try:
+        data = await request.json()
+        song_path = data.get('song_path')
+        if not song_path or not os.path.exists(song_path):
+            return web.json_response({'error': 'Invalid or missing song_path'}, status=400)
+        global CURRENT_SONG
+        CURRENT_SONG = song_path
+        print(f"[DEBUG] Switched radio song to: {CURRENT_SONG}")
+        return web.json_response({'status': 'ok', 'current_song': CURRENT_SONG})
+    except Exception as e:
+        print(f"[DEBUG] switch_song_endpoint error: {e}")
+        return web.json_response({'error': str(e)}, status=500)
+
 # Create the aiohttp web application and add the /stream route
 app = web.Application()
 app.router.add_get('/stream', stream_audio)
+
+# Add the /switch_song endpoint after app is defined
+app.router.add_post('/switch_song', switch_song_endpoint)
 
 # Graceful shutdown endpoint for the radio server
 async def shutdown(request):

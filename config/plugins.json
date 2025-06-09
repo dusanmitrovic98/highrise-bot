@@ -100,5 +100,12 @@
     "permissions": [],
     "aliases": [],
     "cooldown": 0
+  },
+  "tts": {
+    "name": "tts",
+    "description": "Text-to-speech functionality.",
+    "permissions": [],
+    "aliases": [],
+    "cooldown": 0
   }
 }

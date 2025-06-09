@@ -1,10 +1,10 @@
 import logging
 import asyncio
+import requests
 from highrise import User
 from config.config import config
 from src.commands.command_base import CommandBase
 from src.utility.ai import chat
-from packages.radio_tts.main import say_on_radio
 
 class Command(CommandBase):
     """
@@ -58,7 +58,7 @@ class Command(CommandBase):
             else:
                 response = await asyncio.get_running_loop().run_in_executor(None, lambda: result)
             await send_func(response.strip())
-            say_on_radio(response.strip())  # Stream the response on radio
+            return response.strip()
         except Exception as e:
             await self._handle_error(send_func, f"[ASK] Error in ask response: {e}")
 
@@ -80,7 +80,12 @@ class Command(CommandBase):
             question = self._extract_question(message, self.prefix, self.name)
             await self.bot.highrise.chat(self._thinking_message)
             username = self._extract_username(user)
-            await self._send_ai_response(question, username, users, self.bot.highrise.chat)
+            response = await self._send_ai_response(question, username, users, self.bot.highrise.chat)
+            # Stream the response on radio via HTTP endpoint (only in public chat)
+            try:
+                requests.post(self.get_setting("tts_url", "http://localhost:5002/say"), json={"text": response})
+            except Exception as e:
+                print(f"[DEBUG] Failed to send TTS to radio server: {e}")
         except Exception as e:
             await self._handle_error(self.bot.highrise.chat, f"[ASK] Error in ask command: {e}", self._error_message)
 
