@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.25] - 2025-06-11
+- Rollback release.
+- Stable with radio tts package working under stable conditions.
+- Radio tts needs improvements.
+
 ## [0.0.24] - 2025-06-07
 
 ### Removed
