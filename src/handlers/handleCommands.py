@@ -146,7 +146,10 @@ class CommandHandler:
                                 del self.package_processes[command_name]
                             # Start new process
                             if os.path.exists(abs_main_py):
-                                proc = subprocess.Popen(['python', abs_main_py], creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+                                if os.name == 'nt':  # Windows
+                                    proc = subprocess.Popen(['python', abs_main_py], creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+                                else:
+                                    proc = subprocess.Popen(['python', abs_main_py])
                                 self.package_processes[command_name] = proc
                                 logging.info(f"Started package process for {command_name}: {abs_main_py}")
                                 # Register the package port after starting
