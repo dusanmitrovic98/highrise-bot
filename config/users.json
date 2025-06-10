@@ -62,6 +62,13 @@
                 "guest"
             ],
             "extra_permissions": []
+        },
+        "601d9e659fc98037e26e6667": {
+            "username": "_Ocean._",
+            "roles": [
+                "guest"
+            ],
+            "extra_permissions": []
         }
     }
 }

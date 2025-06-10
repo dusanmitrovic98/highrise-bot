@@ -1,8 +1,0 @@
-"ask": {
-    "name": "ask",
-    "description": "Give the AI the question to answer.",
-    "permissions": [],
-    "aliases": [],
-    "cooldown": 0,
-    "package": "packages/ask"
-  },
