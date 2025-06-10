@@ -121,7 +121,7 @@ if __name__ == "__main__":
     def run_flask():
         from web import app
         port = int(os.environ.get("PORT", 5000))
-        app.run(host="0.0.0.0", port=port)
+        app.run(host="localhost", port=port)
     Thread(target=run_flask, daemon=True).start()
     load_dotenv()
     flag_path = Path("runtime/flags/warp.flag")
