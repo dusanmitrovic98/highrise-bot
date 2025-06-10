@@ -1,0 +1,13 @@
+{
+    "roles": {
+        "owner": [
+            "*"
+        ],
+        "admin": [
+            "*"
+        ],
+        "moderator": [],
+        "user": [],
+        "guest": []
+    }
+}

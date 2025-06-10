@@ -1,0 +1,95 @@
+{
+  "README": "This is a template configuration file. Please copy it to 'config.json' and fill in the required fields. Do not commit 'config.json' to version control it contains sensitive information. Same applies to 'config/permissions.template.json'.",
+  "url": "http://localhost:5001/v1",
+  "prefix": "!",
+  "bot_id": "66ab9e4865e341064df9df2b",
+  "bot_name": "SebastianTheButler",
+  "owner_name": "dule98",
+  "loggers": {
+    "before_start": true,
+    "start": true,
+    "chat": true,
+    "whisper": true,
+    "user_join": true,
+    "user_leave": true,
+    "tip": true,
+    "emote": true,
+    "reaction": true,
+    "user_move": true,
+    "message": true
+  },
+  "messages": {
+    "invalidPosition": "Your position could not be determined.",
+    "invalidPlayer": "{user} is not in the room.",
+    "invalidUser": "User {user} is not found.",
+    "invalidUsage": "Usage: {prefix}{commandName}{args}",
+    "invalidUserFormat": "Invalid user format. Please use '@username'.",
+    "fallback_message_ai": "Sorry, can you ask me again later? I am kinda SUPER busy lol"
+  },
+  "actions": {
+    "follow_user": {
+      "id": "658780270141c6c8ed93835e",
+      "name": "teddy998",
+      "coordinates": {
+        "x": 4.5,
+        "y": 0.25,
+        "z": 5.5,
+        "facing": "BackRight"
+      },
+      "distance": 0.0,
+      "timeout": "infinite",
+      "enabled": false,
+      "facing": "BackRight"
+    }
+  },
+  "locations": {
+    "door": {
+      "x": 7.0,
+      "y": 0.25,
+      "z": 6.0,
+      "facing": "FrontLeft"
+    },
+    "leave": {
+      "x": 7.5,
+      "y": 0.25,
+      "z": 6.0,
+      "facing": "BackRight"
+    },
+    "spawn": {
+      "x": 0.5,
+      "y": 0.25,
+      "z": 7.5,
+      "facing": "FrontLeft"
+    },
+    "chair": {
+      "x": 1.0526927524142848,
+      "y": 1.6348980518812015,
+      "z": 3.4656470535906836,
+      "facing": "FrontRight"
+    },
+    "cooler": {
+      "x": 0.5,
+      "y": 1.25,
+      "z": 4.5,
+      "facing": "FrontLeft"
+    },
+    "necropolis-security": {
+      "x": 6.5,
+      "y": 0.10000000149011612,
+      "z": 0.5,
+      "facing": "FrontRight"
+    }
+  },
+  "portals": {
+    "teddy": "6800920beaf319f27b60f1bd",
+    "fab": "65b3399b5e41ae65389a1b23",
+    "dule": "6807a86ebcff1952758703b3",
+    "necropolis": "682e0b4cf6f6de5636fe9b85"
+  },
+  "entities": {
+    "chair": "c24921950c32966fbcdb99fe",
+    "bed": "5b7bad50ea92a3d4a2719833",
+    "sofa": "20403d7f828f48d67cf1b813",
+    "teddysofa": "b420b7fba902314639d0b5c2"
+  }
+}

@@ -7,8 +7,8 @@ instance/
 *.pyc
 .conda
 
-config/config.json
-config/permissions.json
+# config/config.json
+# config/permissions.json
 
 *.log
 
